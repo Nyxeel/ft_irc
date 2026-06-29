@@ -75,13 +75,13 @@ Einen Server erstellen, der TCP-Verbindungen akzeptieren kann.
 
 ## Aufgaben
 
-* [ ] Klasse `Server` erstellen
-* [ ] Programmargumente parsen
-* [ ] Listening-Socket erzeugen
-* [ ] Socket konfigurieren
-* [ ] Socket an Port binden
-* [ ] Verbindungen akzeptieren
-* [ ] Sauberes Beenden implementieren
+* [✅] Klasse `Server` erstellen
+* [❌] Programmargumente parsen
+* [❌] Listening-Socket erzeugen
+* [❌] Socket konfigurieren
+* [❌] Socket an Port binden
+* [❌] Verbindungen akzeptieren
+* [❌] Sauberes Beenden implementieren
 
 ## Test
 
@@ -112,11 +112,11 @@ Mehrere Clients gleichzeitig unterstützen.
 
 ## Aufgaben
 
-* [ ] poll()-Loop erstellen
-* [ ] pollfd-Liste verwalten
-* [ ] Neue Verbindungen erkennen
-* [ ] Eingehende Daten erkennen
-* [ ] Verbindungsabbrüche behandeln
+* [❌] poll()-Loop erstellen
+* [❌] pollfd-Liste verwalten
+* [❌] Neue Verbindungen erkennen
+* [❌] Eingehende Daten erkennen
+* [❌] Verbindungsabbrüche behandeln
 
 ## Test
 
@@ -141,12 +141,12 @@ Jeden verbundenen Benutzer durch ein Objekt repräsentieren.
 
 ## Aufgaben
 
-* [ ] Klasse `Client` erstellen
-* [ ] File Descriptor speichern
-* [ ] Nickname speichern
-* [ ] Username speichern
-* [ ] Authentifizierungsstatus speichern
-* [ ] Empfangsbuffer speichern
+* [❌] Klasse `Client` erstellen
+* [❌] File Descriptor speichern
+* [❌] Nickname speichern
+* [❌] Username speichern
+* [❌] Authentifizierungsstatus speichern
+* [❌] Empfangsbuffer speichern
 
 ## Beispielattribute
 
@@ -168,10 +168,10 @@ Nachrichten von Clients empfangen.
 
 ## Aufgaben
 
-* [ ] recv() implementieren
-* [ ] Verbindungsabbrüche erkennen
-* [ ] Daten in den Buffer schreiben
-* [ ] Debug-Ausgabe der empfangenen Daten
+* [❌] recv() implementieren
+* [❌] Verbindungsabbrüche erkennen
+* [❌] Daten in den Buffer schreiben
+* [❌] Debug-Ausgabe der empfangenen Daten
 
 ## Test
 
@@ -197,10 +197,10 @@ Rohdaten in IRC-Befehle umwandeln.
 
 ## Aufgaben
 
-* [ ] Parser erstellen
-* [ ] Kommando und Argumente trennen
-* [ ] CRLF behandeln
-* [ ] Unvollständige Pakete korrekt zusammensetzen
+* [❌] Parser erstellen
+* [❌] Kommando und Argumente trennen
+* [❌] CRLF behandeln
+* [❌] Unvollständige Pakete korrekt zusammensetzen
 
 ## Beispiel
 
@@ -247,10 +247,10 @@ USER max 0 * :Max Musermann
 
 ## Aufgaben
 
-* [ ] Passwort prüfen
-* [ ] Nicknames validieren
-* [ ] Doppelte Nicknames verhindern
-* [ ] Registrierung abschließen
+* [❌] Passwort prüfen
+* [❌] Nicknames validieren
+* [❌] Doppelte Nicknames verhindern
+* [❌] Registrierung abschließen
 
 ## Test
 
@@ -274,9 +274,9 @@ Verbindung über einen IRC-Client herstellen.
 
 ## Aufgaben
 
-* [ ] Verbindung testen
-* [ ] Registrierung testen
-* [ ] Nickname-Handling testen
+* [❌] Verbindung testen
+* [❌] Registrierung testen
+* [❌] Nickname-Handling testen
 
 ## Erfolgreich wenn
 
@@ -292,11 +292,11 @@ Channels erstellen und verwalten.
 
 ## Aufgaben
 
-* [ ] Klasse `Channel` erstellen
-* [ ] Mitglieder speichern
-* [ ] Operatoren speichern
-* [ ] Topic speichern
-* [ ] Channels dynamisch erzeugen
+* [❌] Klasse `Channel` erstellen
+* [❌] Mitglieder speichern
+* [❌] Operatoren speichern
+* [❌] Topic speichern
+* [❌] Channels dynamisch erzeugen
 
 ## Zu implementierender Befehl
 
@@ -328,9 +328,9 @@ PRIVMSG #42 :Hallo Welt
 
 ## Aufgaben
 
-* [ ] Benutzer-zu-Benutzer Nachrichten
-* [ ] Benutzer-zu-Channel Nachrichten
-* [ ] Nachrichten an alle Channel-Mitglieder weiterleiten
+* [❌] Benutzer-zu-Benutzer Nachrichten
+* [❌] Benutzer-zu-Channel Nachrichten
+* [❌] Nachrichten an alle Channel-Mitglieder weiterleiten
 
 ## Test
 
@@ -354,8 +354,8 @@ KICK #42 user
 
 Aufgaben:
 
-* [ ] Benutzer entfernen
-* [ ] Channel informieren
+* [❌] Benutzer entfernen
+* [❌] Channel informieren
 
 ---
 
@@ -367,8 +367,8 @@ INVITE user #42
 
 Aufgaben:
 
-* [ ] Einladungen verwalten
-* [ ] Invite-Only Channels unterstützen
+* [❌] Einladungen verwalten
+* [❌] Invite-Only Channels unterstützen
 
 ---
 
@@ -380,8 +380,8 @@ TOPIC #42 :Neues Thema
 
 Aufgaben:
 
-* [ ] Topic setzen
-* [ ] Topic anzeigen
+* [❌] Topic setzen
+* [❌] Topic anzeigen
 
 ---
 
@@ -419,9 +419,9 @@ MODE #42 +l 10
 
 Aufgaben:
 
-* [ ] Alle Pflicht-Modi implementieren
-* [ ] Rechte prüfen
-* [ ] Fehlerfälle behandeln
+* [❌] Alle Pflicht-Modi implementieren
+* [❌] Rechte prüfen
+* [❌] Fehlerfälle behandeln
 
 ---
 
@@ -433,19 +433,19 @@ Einen robusten Server entwickeln.
 
 ## Aufgaben
 
-* [ ] Verbindungsabbrüche behandeln
-* [ ] Ungültige Befehle behandeln
-* [ ] Doppelte Nicknames behandeln
-* [ ] Ungültige Channels behandeln
-* [ ] Speicher korrekt freigeben
-* [ ] Alle Fehlerfälle testen
+* [❌] Verbindungsabbrüche behandeln
+* [❌] Ungültige Befehle behandeln
+* [❌] Doppelte Nicknames behandeln
+* [❌] Ungültige Channels behandeln
+* [❌] Speicher korrekt freigeben
+* [❌] Alle Fehlerfälle testen
 
 ## Belastungstests
 
-* [ ] Mehrere Clients gleichzeitig
-* [ ] Schnelle Verbindungsabbrüche
-* [ ] Fragmentierte Pakete
-* [ ] Ungültige Eingaben
+* [❌] Mehrere Clients gleichzeitig
+* [❌] Schnelle Verbindungsabbrüche
+* [❌] Fragmentierte Pakete
+* [❌] Ungültige Eingaben
 
 ---
 
@@ -457,11 +457,11 @@ Projekt für die Verteidigung vorbereiten.
 
 ## Aufgaben
 
-* [ ] Alle Pflichtanforderungen prüfen
-* [ ] Debug-Ausgaben entfernen
-* [ ] Testfälle dokumentieren
-* [ ] README fertigstellen
-* [ ] Code aufräumen
+* [❌] Alle Pflichtanforderungen prüfen
+* [❌] Debug-Ausgaben entfernen
+* [❌] Testfälle dokumentieren
+* [❌] README fertigstellen
+* [❌] Code aufräumen
 
 ---
 
@@ -471,8 +471,8 @@ Erst beginnen, wenn der Mandatory Part vollständig und stabil funktioniert.
 
 ## Mögliche Erweiterungen
 
-* [ ] IRC-Bot
-* [ ] Dateiübertragung
+* [❌] IRC-Bot
+* [❌] Dateiübertragung
 
 ---
 
@@ -480,45 +480,45 @@ Erst beginnen, wenn der Mandatory Part vollständig und stabil funktioniert.
 
 ## Server
 
-* [ ] TCP-Server
-* [ ] poll()
-* [ ] Client-Verwaltung
-* [ ] IRC-Parser
+* [❌] TCP-Server
+* [❌] poll()
+* [❌] Client-Verwaltung
+* [❌] IRC-Parser
 
 ## Authentifizierung
 
-* [ ] PASS
-* [ ] NICK
-* [ ] USER
+* [❌] PASS
+* [❌] NICK
+* [❌] USER
 
 ## Channels
 
-* [ ] JOIN
-* [ ] Channel-Erstellung
-* [ ] Channel-Verwaltung
+* [❌] JOIN
+* [❌] Channel-Erstellung
+* [❌] Channel-Verwaltung
 
 ## Nachrichten
 
-* [ ] PRIVMSG Benutzer
-* [ ] PRIVMSG Channel
+* [❌] PRIVMSG Benutzer
+* [❌] PRIVMSG Channel
 
 ## Operatoren
 
-* [ ] KICK
-* [ ] INVITE
-* [ ] TOPIC
-* [ ] MODE +i
-* [ ] MODE +t
-* [ ] MODE +k
-* [ ] MODE +o
-* [ ] MODE +l
+* [❌] KICK
+* [❌] INVITE
+* [❌] TOPIC
+* [❌] MODE +i
+* [❌] MODE +t
+* [❌] MODE +k
+* [❌] MODE +o
+* [❌] MODE +l
 
 ## Fertig
 
-* [ ] Alle Pflichtanforderungen erfüllt
-* [ ] Stabil unter Lasttests
-* [ ] Dokumentation abgeschlossen
-* [ ] Bereit für die Evaluation
+* [❌] Alle Pflichtanforderungen erfüllt
+* [❌] Stabil unter Lasttests
+* [❌] Dokumentation abgeschlossen
+* [❌] Bereit für die Evaluation
 
 ```
 ```

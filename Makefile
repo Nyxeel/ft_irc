@@ -20,7 +20,7 @@ DEP_DIR = dep
 
 # Source files
 SRC	=	main.cpp\
-		Server.cpp\
+		#Server.cpp\
 		Client.cpp\
 		Parser.cpp
 
