@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/06/29 21:15:12 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 00:08:44 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,21 @@
 #include <unistd.h>       	// close()
 #include <fcntl.h>        	// fcntl(), O_NONBLOCK
 #include <cstring>
+#include <stdexcept>
+#include <cstdlib>
+
+
 
 Server::Server(std::string port, std::string password) {
 
-	// if(Parse::function())
+	// if(Parse::function() == SUCCESS)
 		_password = password;
 		_port = atoi(port.c_str());
 
 		memset(&_addr, 0, sizeof(_addr));
-		uint16_t socket_addr = htons(_port);
+		_addr.sin_family = AF_INET;
+		_addr.sin_port = htons(_port);
+
 
 }
 
@@ -51,4 +57,11 @@ Server::~Server() {
 
 }
 
+
+void	Server::setup() {
+
+	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+		if (_sockfd > 0)
+			throw std::runtime_error("Error: socket() failed");
+}
 
