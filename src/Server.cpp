@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 00:08:44 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 00:14:15 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,5 +63,22 @@ void	Server::setup() {
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (_sockfd > 0)
 			throw std::runtime_error("Error: socket() failed");
+
+	/*
+
+	bind()
+	listen()
+
+	while(poll())
+	{
+		acceppt(), connect(),
+
+
+		recv(), send(), recvfrom(), sendto()
+	}
+	closesocket()
+	*/
+
+
 }
 
