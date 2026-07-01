@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 07:51:59 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 08:30:25 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <signal.h>
+#include <cerrno>
 
 
 
@@ -107,25 +108,43 @@ void	Server::stop() {
 void	Server::setup() {
 
 
-	//[2] socket()                    ← Socket erstellen
+	//Socket erstellen
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (_sockfd > 0)
-			throw std::runtime_error("Error: socket() failed");
+	if (_sockfd == -1)
+		throw std::runtime_error(std::string ("Error socket: ") + strerror(errno));
 
 
-//[3] setsockopt()                ← Socket konfigurieren (SO_REUSEADDR)
-//[4] fcntl()                     ← Non-blocking setzen
+	//Socket konfigurieren (SO_REUSEADDR)
+	int opt = 1;
+	if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+		throw std::runtime_error(std::string ("Error setsockopt: ") + strerror(errno));
 
-	//[5] htons / htonl               ← Port/IP in Netzwerk-Byteorder umwandeln
+	//Non-blocking setzen
+	if (fcntl(_sockfd, F_SETFL, O_NONBLOCK) == -1)
+		throw std::runtime_error(std::string ("Error fcntl: ") + strerror(errno));
+
+	//Port/IP in Netzwerk-Byteorder umwandeln
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_port = htons(_port);
-//[6] bind()                      ← An Port binden
-//[7] listen()                    ← Auf Verbindungen warten
+	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+
+	//	An Port binden
+	if (bind(_sockfd, (struct sockaddr*)&_addr, sizeof(_addr)) == -1)
+		throw std::runtime_error(std::string ("Error bind: ") + strerror(errno));
+
+	// Auf Verbindungen warten
+	if (listen(_sockfd, SOMAXCONN) == -1)
+		throw std::runtime_error(std::string ("Error listen: ") + strerror(errno));
 
 	_running = true;
-/*
+}
+
+
+void	Server::run() {
+
+	/*
 	while(_running)
 	{
 		poll()
@@ -137,6 +156,4 @@ void	Server::setup() {
 
 	*/
 
-
 }
-

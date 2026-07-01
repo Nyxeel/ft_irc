@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 16:33:26 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 07:51:28 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 08:23:50 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int	main(int ac, char* av[]) {
 		Server server(av[1], av[2]);
 		g_server = &server;
 		server.setup();
+		server.run();
 	}
 	catch (std::exception &e) {
 		print(e.what());
