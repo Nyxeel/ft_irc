@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 01:03:04 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 01:36:43 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,15 +164,29 @@ void Server::run() {
 
   while (_running) {
 
-	struct sockaddr_in 	clientAddr;
-	socklen_t 			clientSize = sizeof(clientAddr);
+	// 1. poll() WARTEN AUF EVENT!
 
-	int clientSocket = accept(_serverSocket, (sockaddr*) &clientAddr, &clientSize);
-  	if (clientSocket == FATAL)
-    	throw std::runtime_error(std::string("Error clientSocket: ") + strerror(errno));
 
-	Client client(clientSocket);
-	_clientMap[clientSocket] = client;
+
+
+	// 2.  NEUER CLIENT anmelden
+		struct sockaddr_in 	clientAddr;
+		socklen_t 			clientSize = sizeof(clientAddr);
+
+		int clientSocket = accept(_serverSocket, (sockaddr*) &clientAddr, &clientSize);
+  		if (clientSocket == FATAL)
+    		throw std::runtime_error(std::string("Error clientSocket: ") + strerror(errno));
+
+		Client client(clientSocket);
+		_clientMap[clientSocket] = client;
+
+	// 3.  DATEN VON CLIENTS - message parsen & printen
+
+
+
+
+	// 4. CLIENT WEG? client entfernen
+
 
 
 
