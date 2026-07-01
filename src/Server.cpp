@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 08:30:25 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 08:38:20 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,18 @@
 Server::Server(std::string port, std::string password) {
 
 	// if(Parse::function() == SUCCESS)
-		_password = password;
+
+		_sockfd = -1;
 		_port = atoi(port.c_str());
+		_password = password;
+		_running = false;
 		init_signals();
 
 }
 
 Server::Server(const Server &other) :
-		_port(other._port), _password(other._password) {
+		_sockfd(other._sockfd), _port(other._port),
+		_password(other._password), _running(other._running) {
 
 }
 
@@ -47,9 +51,10 @@ Server& Server::operator=(const Server &other) {
 
 	if (this != &other) {
 
+		_sockfd = other._sockfd;
 		_port = other._port;
 		_password = other._password;
-
+		_running = other._running;
 	}
 	return *this;
 }
