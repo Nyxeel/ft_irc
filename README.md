@@ -1,6 +1,6 @@
 # ft_irc
 
-This project has been created as part of the 42 curriculum by pjelinek ans bschwarz.
+*This project has been created as part of the 42 curriculum by pjelinek and bschwarz.*
 
 ## Description
 

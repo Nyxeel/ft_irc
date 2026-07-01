@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 00:07:47 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 07:38:18 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,10 @@ class Server {
 	std::string 		_password;
 	struct sockaddr_in	_addr;
 
+	void				init_signals();
+	bool				_running;
+
+
 	public:
 		Server(std::string port, std::string password);
 		Server(const Server &other);
@@ -47,12 +51,13 @@ class Server {
 		~Server();
 
 		void	setup();
+		void	stop();
 
 
 
 };
 
-
+static Server* g_server = NULL;
 
 
 
