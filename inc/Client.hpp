@@ -1,24 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 15:37:42 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 15:45:31 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef CLINET_HPP
+# define CLINET_HPP
 
-#include <string>
-#include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
-
-#define SUCCESS 0
-#define ERROR 	1
-#define FAIL	-1
 
 /*
 		struct sockaddr_in {
@@ -34,32 +28,16 @@
 */
 
 
-class Server {
-
-	int					_sockfd;
-	uint16_t 			_port;
-	std::string 		_password;
-	struct sockaddr_in	_addr;
-
-	void				init_signals();
-	void		cleanSockets();
-	bool				_running;
-
+class Client {
 
 	public:
-		Server(std::string port, std::string password);
-		Server(const Server &other);
-		Server& operator=(const Server &other);
-		~Server();
+		Client();
+		Client(const Client &other);
+		Client& operator=(const Client &other);
+		~Client();
 
-		void	setup();
-		void	stop();
-		void	run();
 
 };
-
-extern Server* g_server;
-
 
 
 #endif

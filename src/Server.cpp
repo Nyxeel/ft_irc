@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 15:16:33 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 15:43:45 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,10 @@ Server &Server::operator=(const Server &other) {
   return *this;
 }
 
-Server::~Server() {}
+Server::~Server() {
+
+	cleanSockets();
+}
 
 // ───────────────────────────────────────────────
 // ─────────────────── SIGNALS ───────────────────
@@ -92,7 +95,7 @@ void	printServerStop() {
 
 	for (int i = 0; i < 8; i++) {
     	const char* dots[] = { "   ", ".  ", ".. ", "..." };
-    	std::cout << "\rShutting server down" << dots[i % 4] << std::flush;
+    	std::cout << "\rServer shutting down" << dots[i % 4] << std::flush;
     	nanosleep(&ts, NULL);
 	}
 }
@@ -109,6 +112,14 @@ void Server::stop() {
 	_running = false;
 }
 
+inline void	Server::cleanSockets() {
+
+	if (_sockfd > 0)
+		close(_sockfd);
+	//TODO: close all client sockets
+
+}
+
 // ───────────────────────────────────────────────
 // ──────────────────── SETUP ────────────────────
 // ───────────────────────────────────────────────
@@ -117,7 +128,7 @@ void Server::setup() {
 
   // Socket erstellen
   _sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (_sockfd == -1)
+  if (_sockfd == FAIL)
     throw std::runtime_error(std::string("Error socket: ") + strerror(errno));
 
   // Socket konfigurieren (SO_REUSEADDR)
@@ -127,7 +138,7 @@ void Server::setup() {
                              strerror(errno));
 
   // Non-blocking setzen
-  if (fcntl(_sockfd, F_SETFL, O_NONBLOCK) == -1)
+  if (fcntl(_sockfd, F_SETFL, O_NONBLOCK) == FAIL)
     throw std::runtime_error(std::string("Error fcntl: ") + strerror(errno));
 
   // Port/IP in Netzwerk-Byteorder umwandeln
@@ -137,11 +148,11 @@ void Server::setup() {
   _addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   //	An Port binden
-  if (bind(_sockfd, (struct sockaddr *)&_addr, sizeof(_addr)) == -1)
+  if (bind(_sockfd, (struct sockaddr *)&_addr, sizeof(_addr)) == FAIL)
     throw std::runtime_error(std::string("Error bind: ") + strerror(errno));
 
   // Auf Verbindungen warten
-  if (listen(_sockfd, SOMAXCONN) == -1)
+  if (listen(_sockfd, SOMAXCONN) == FAIL)
     throw std::runtime_error(std::string("Error listen: ") + strerror(errno));
 
   _running = true;
