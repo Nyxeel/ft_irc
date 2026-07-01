@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 08:23:39 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 14:57:04 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,9 @@ class Server {
 		void	stop();
 		void	run();
 
-
 };
 
-static Server* g_server = NULL;
+extern Server* g_server;
 
 
 

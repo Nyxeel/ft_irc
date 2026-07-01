@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 16:33:26 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 08:23:50 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/01 15:08:20 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 #include <iostream>
 #include <string>
 
-void print(std::string str) {
+Server* g_server = NULL;
+
+inline void print(std::string str) {
 
 	std::cout << str << std::endl;
 }
