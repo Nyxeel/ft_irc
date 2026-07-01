@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
+/*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 01:02:37 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 01:00:16 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Client.hpp"
+#include "../inc/Channel.hpp"
 #include <arpa/inet.h> // htons()...
 #include <arpa/inet.h> // htons(), inet_ntop()
 #include <cerrno>
@@ -22,8 +22,6 @@
 #include <sys/socket.h> // socket(), bind(), listen(), accept()
 #include <unistd.h>     // close()
 #include <iostream>     // close()
-#include <string>
-
 
 void print(std::string str);
 
@@ -31,52 +29,26 @@ void print(std::string str);
 // ────────────────── CANONICAL ──────────────────
 // ───────────────────────────────────────────────
 
-Client::Client() {
-
-	_clientSocket = -1;
-	_nickname = "";
-	_username = "";
-	_authenticate = false;
-	_buffer = NULL;
+Channel::Channel() {
 
 }
 
-Client::Client(int clientSocket) {
-
-	_clientSocket 	= clientSocket;
-	_nickname 		= "";
-	_username 		= "";
-	_authenticate 	= false;
-	_buffer 		= NULL;
-
-}
-
-Client::Client(const Client &other) :
-	_clientSocket(other._clientSocket), _nickname(other._nickname),
-	_username(other._username), _authenticate(other._authenticate),
-	_channel(other._channel), _buffer(other._buffer)
+Channel::Channel(const Channel &other)
 {
+	(void) other;
 
 }
 
-Client &Client::operator=(const Client &other) {
+Channel &Channel::operator=(const Channel &other) {
 
+(void) other;
   if (this != &other) {
 
-	_clientSocket 	=	other._clientSocket;
-	_nickname 		=	other._nickname;
-	_username 		=	other._username;
-	_authenticate 	=	other._authenticate;
-	_channel 		=	other._channel;
-	_buffer 		=	other._buffer;
   }
   return *this;
 }
 
-Client::~Client() {
+Channel::~Channel() {
 
-	if (_clientSocket == -1) {
-		close(_clientSocket);
-		_clientSocket = -1;
-	}
+
 }

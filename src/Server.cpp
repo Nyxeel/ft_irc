@@ -6,12 +6,11 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 15:43:45 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 01:03:04 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
-#include <arpa/inet.h> // htons()...
 #include <arpa/inet.h> // htons(), inet_ntop()
 #include <cerrno>
 #include <cstdlib>
@@ -34,26 +33,28 @@ void print(std::string str);
 Server::Server(std::string port, std::string password) {
 
   // if(Parse::function() == SUCCESS)
+  //All ports below 1024 are RESERVED (unless you’re the superuser)! You can have any port number above that, right up to 65535 (provided they aren’t already being used by another program).
 
-  _sockfd = -1;
-  _port = atoi(port.c_str());
-  _password = password;
-  _running = false;
+  _serverSocket = -1;
+  _port 		= atoi(port.c_str());
+  _password 	= password;
+  _running 		= false;
+
   init_signals();
 }
 
 Server::Server(const Server &other)
-    : _sockfd(other._sockfd), _port(other._port), _password(other._password),
+    : _serverSocket(other._serverSocket), _port(other._port), _password(other._password),
       _running(other._running) {}
 
 Server &Server::operator=(const Server &other) {
 
   if (this != &other) {
 
-    _sockfd = other._sockfd;
-    _port = other._port;
-    _password = other._password;
-    _running = other._running;
+    _serverSocket 	= other._serverSocket;
+    _port 			= other._port;
+    _password 		= other._password;
+    _running 		= other._running;
   }
   return *this;
 }
@@ -98,24 +99,25 @@ void	printServerStop() {
     	std::cout << "\rServer shutting down" << dots[i % 4] << std::flush;
     	nanosleep(&ts, NULL);
 	}
+	std::cout << "\r                        \r" << std::flush;
 }
 
 void Server::stop() {
 
   	if (!_running)
   	  return;
-
-	printServerStop();
-
-	close(_sockfd);
 	//TODO: close all client sockets
 	_running = false;
 }
 
 inline void	Server::cleanSockets() {
 
-	if (_sockfd > 0)
-		close(_sockfd);
+	if (_serverSocket != -1) {
+		close(_serverSocket);
+		_serverSocket = -1;
+	}
+
+	printServerStop();
 	//TODO: close all client sockets
 
 }
@@ -127,18 +129,18 @@ inline void	Server::cleanSockets() {
 void Server::setup() {
 
   // Socket erstellen
-  _sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (_sockfd == FAIL)
-    throw std::runtime_error(std::string("Error socket: ") + strerror(errno));
+  _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if (_serverSocket == FATAL)
+    throw std::runtime_error(std::string("Error serverSocket: ") + strerror(errno));
 
   // Socket konfigurieren (SO_REUSEADDR)
   int opt = 1;
-  if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+  if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
     throw std::runtime_error(std::string("Error setsockopt: ") +
                              strerror(errno));
 
   // Non-blocking setzen
-  if (fcntl(_sockfd, F_SETFL, O_NONBLOCK) == FAIL)
+  if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == FATAL)
     throw std::runtime_error(std::string("Error fcntl: ") + strerror(errno));
 
   // Port/IP in Netzwerk-Byteorder umwandeln
@@ -148,11 +150,11 @@ void Server::setup() {
   _addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   //	An Port binden
-  if (bind(_sockfd, (struct sockaddr *)&_addr, sizeof(_addr)) == FAIL)
+  if (bind(_serverSocket, (struct sockaddr *)&_addr, sizeof(_addr)) == FATAL)
     throw std::runtime_error(std::string("Error bind: ") + strerror(errno));
 
   // Auf Verbindungen warten
-  if (listen(_sockfd, SOMAXCONN) == FAIL)
+  if (listen(_serverSocket, SOMAXCONN) == FATAL)
     throw std::runtime_error(std::string("Error listen: ") + strerror(errno));
 
   _running = true;
@@ -161,8 +163,20 @@ void Server::setup() {
 void Server::run() {
 
   while (_running) {
-    /* 	poll()
-            acceppt(), connect(),
+
+	struct sockaddr_in 	clientAddr;
+	socklen_t 			clientSize = sizeof(clientAddr);
+
+	int clientSocket = accept(_serverSocket, (sockaddr*) &clientAddr, &clientSize);
+  	if (clientSocket == FATAL)
+    	throw std::runtime_error(std::string("Error clientSocket: ") + strerror(errno));
+
+	Client client(clientSocket);
+	_clientMap[clientSocket] = client;
+
+
+
+	  /* 	poll()
 
 
             recv(), send(), recvfrom(), sendto() */

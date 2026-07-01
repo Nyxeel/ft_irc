@@ -1,27 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Channel.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 00:47:34 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 00:25:46 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef CHANNEL_HPP
+# define CHANNEL_HPP
 
-#include <string>
-#include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
 #include <map>
-
-#include "Client.hpp"
-
-#define SUCCESS 0
-#define ERROR 	1
-#define FATAL	-1
 
 /*
 		struct sockaddr_in {
@@ -37,33 +29,16 @@
 */
 
 
-class Server {
-
-	int						_serverSocket;
-	uint16_t 				_port;
-	std::string 			_password;
-	struct sockaddr_in		_addr;
-
-	void					init_signals();
-	void					cleanSockets();
-	bool					_running;
-	std::map<int, Client>	_clientMap;
+class Channel {
 
 
 	public:
-		Server(std::string port, std::string password);
-		Server(const Server &other);
-		Server& operator=(const Server &other);
-		~Server();
-
-		void	setup();
-		void	stop();
-		void	run();
+		Channel();
+		Channel(const Channel &other);
+		Channel& operator=(const Channel &other);
+		~Channel();
 
 };
-
-extern Server* g_server;
-
 
 
 #endif

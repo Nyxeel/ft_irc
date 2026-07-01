@@ -6,13 +6,16 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 15:45:31 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 00:58:51 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLINET_HPP
 # define CLINET_HPP
 
+#include <map>
+#include <string>
+#include "Channel.hpp"
 
 /*
 		struct sockaddr_in {
@@ -30,8 +33,16 @@
 
 class Client {
 
+	int						_clientSocket;
+	std::string				_nickname;
+	std::string				_username;
+	bool					_authenticate;
+	std::map<int, Channel> 	_channel;
+	const char*				_buffer;
+
 	public:
 		Client();
+		Client(int clientSocket);
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		~Client();
