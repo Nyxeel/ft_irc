@@ -1,0 +1,94 @@
+# System-Shell-Integration neutralisieren
+PROMPT_COMMAND=update_exit_status_icon
+
+parse_git_branch()
+{
+    local b="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+    if [ -n "$b" ]; then
+        echo "⋖ $b "
+    fi
+}
+
+update_exit_status_icon()
+{
+    STATUS=$?   # originalen Exitcode sichern
+
+    # Mapping für bekannte Fehlercodes
+    case $STATUS in
+        130)
+            SIGNAL_NAME="SIGINT"       # Prozess durch Ctrl+C unterbrochen
+            ;;
+        131)
+            SIGNAL_NAME="SIGQUIT"      # Quit-Signal, oft durch Ctrl+\ ausgelöst
+            ;;
+        132)
+            SIGNAL_NAME="SIGILL"       # Illegal Instruction – ungültiger CPU-Befehl
+            ;;
+        133)
+            SIGNAL_NAME="SIGTRAP"      # Breakpoint/Trap – Debugger oder interne Trap
+            ;;
+        134)
+            SIGNAL_NAME="ABRT"         # SIGABRT – abort(), häufig bei double free / assert
+            ;;
+        135)
+            SIGNAL_NAME="SIGBUS"       # Bus Error – ungültiger Speicherzugriff, Alignment-Fehler
+            ;;
+        136)
+            SIGNAL_NAME="SIGFPE"       # Floating Point Exception – Division durch 0, Overflow
+            ;;
+        137)
+            SIGNAL_NAME="KILL"         # SIGKILL – Prozess wurde hart getötet (kill -9)
+            ;;
+        138)
+            SIGNAL_NAME="SIGUSR1"      # User-definiertes Signal 1
+            ;;
+        139)
+            SIGNAL_NAME="SEGFAULT"     # SIGSEGV – Segmentation Fault, ungültiger Pointer
+            ;;
+        140)
+            SIGNAL_NAME="SIGUSR2"      # User-definiertes Signal 2
+            ;;
+        141)
+            SIGNAL_NAME="SIGPIPE"      # Schreiben in Pipe ohne Leser – broken pipe
+            ;;
+        142)
+            SIGNAL_NAME="SIGALRM"      # Timer abgelaufen – durch alarm() oder Timer
+            ;;
+        143)
+            SIGNAL_NAME="TERM"         # SIGTERM – „freundlich“ beendet (standard kill)
+            ;;
+        152)
+            SIGNAL_NAME="SIGXCPU"      # CPU-Zeitlimit überschritten
+            ;;
+        153)
+            SIGNAL_NAME="SIGXFSZ"      # File-Size-Limit überschritten
+            ;;
+        *)
+            SIGNAL_NAME=""             # kein spezielles Mapping nötig
+            ;;
+    esac
+
+    # Wenn Exitcode 0 → keine Anzeige
+    if [ "$STATUS" -eq 0 ]; then
+        export EXIT_ICON=""
+    else
+        # Wenn Signalname existiert → beides anzeigen
+        if [ -n "$SIGNAL_NAME" ]; then
+            export EXIT_ICON="[$STATUS $SIGNAL_NAME] "
+        else
+            export EXIT_ICON="[$STATUS] "
+        fi
+    fi
+}
+
+
+
+# Dein eigenes Prompt setzen
+export PS1='┌─\[\e[1;38;5;89m\] nyxeel\[\e[0m\] $(parse_git_branch)⋗\[\e[0;38;5;69m\] \w\[\e[0m\]\n└─➤ \[\e[0;38;5;1m\]$EXIT_ICON\[\e[1;38;5;179m\]\$\[\e[0m\] '
+export PS2='> '
+
+
+#########################################
+# <<< END PROMPT FIX <<<
+#########################################
+

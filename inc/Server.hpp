@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 00:47:34 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 18:51:34 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 #define SUCCESS 0
 #define ERROR 	1
 #define FATAL	-1
+#define MAX_CLIENTS 1024
+
 
 /*
 		struct sockaddr_in {
@@ -63,6 +65,7 @@ class Server {
 };
 
 extern Server* g_server;
+extern unsigned int g_signal;
 
 
 

@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 12:46:44 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 18:55:13 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <sys/socket.h> // socket(), bind(), listen(), accept()
 #include <unistd.h>     // close()
+#include <vector>
 
 void print(std::string str);
 
@@ -70,9 +71,9 @@ Server::~Server() { cleanSockets(); }
 
 static void signalHandler(int sig) {
 
-  (void)sig;
-  if (g_server)
-    g_server->stop();
+	(void)sig;
+	if (g_server)
+		g_server->stop();
 }
 
 void Server::init_signals() {
@@ -92,14 +93,13 @@ void Server::init_signals() {
 
 void printServerStop() {
 
-  struct timespec ts = {0, 300000000L}; // 300ms
-
-  for (int i = 0; i < 8; i++) {
-    const char *dots[] = {"   ", ".  ", ".. ", "..."};
-    std::cout << "\rServer shutting down" << dots[i % 4] << std::flush;
-    nanosleep(&ts, NULL);
-  }
-  std::cout << "\r                        \r" << std::flush;
+	struct timespec ts = {0, 300000000L}; // 300ms
+	for (int i = 0; i < 10; i++) {
+	  const char *dots[] = {"   ", ".  ", ".. ", "..."};
+	  std::cout << "\rServer shutting down" << dots[i % 4] << std::flush;
+	  nanosleep(&ts, NULL);
+	}
+	std::cout << "\r                        \r" << std::flush;
 }
 
 void Server::stop() {
@@ -112,12 +112,11 @@ void Server::stop() {
 
 inline void Server::cleanSockets() {
 
-  if (_serverSocket != -1) {
-    close(_serverSocket);
-    _serverSocket = -1;
-  }
-
-  printServerStop();
+	if (_serverSocket != -1) {
+	  close(_serverSocket);
+	  _serverSocket = -1;
+	}
+	printServerStop();
   // TODO: close all client sockets
 }
 
@@ -130,19 +129,19 @@ void Server::setup() {
   // Socket erstellen
   _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (_serverSocket == FATAL)
-    throw std::runtime_error(std::string("Error serverSocket: ") +
+    throw std::runtime_error(std::string("Error socket(): ") +
                              strerror(errno));
 
   // Socket konfigurieren (SO_REUSEADDR)
   int opt = 1;
   if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) ==
       -1)
-    throw std::runtime_error(std::string("Error setsockopt: ") +
+    throw std::runtime_error(std::string("Error setsockopt(): ") +
                              strerror(errno));
 
   // Non-blocking setzen
   if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == FATAL)
-    throw std::runtime_error(std::string("Error fcntl: ") + strerror(errno));
+    throw std::runtime_error(std::string("Error fcntl(): ") + strerror(errno));
 
   // Port/IP in Netzwerk-Byteorder umwandeln
   memset(&_addr, 0, sizeof(_addr));
@@ -152,81 +151,95 @@ void Server::setup() {
 
   //	An Port binden
   if (bind(_serverSocket, (struct sockaddr *)&_addr, sizeof(_addr)) == FATAL)
-    throw std::runtime_error(std::string("Error bind: ") + strerror(errno));
+    throw std::runtime_error(std::string("Error bind(): ") + strerror(errno));
 
   // Auf Verbindungen warten
   if (listen(_serverSocket, SOMAXCONN) == FATAL)
-    throw std::runtime_error(std::string("Error listen: ") + strerror(errno));
+    throw std::runtime_error(std::string("Error listen(): ") + strerror(errno));
 
   _running = true;
 }
 
 void Server::run() {
 
-  struct sockaddr_in clientAddr;
-  socklen_t clientSize = sizeof(clientAddr);
 
-  int clientSocket =
-      accept(_serverSocket, (sockaddr *)&clientAddr, &clientSize);
-  if (clientSocket == FATAL)
-    throw std::runtime_error(std::string("Error clientSocket: ") +
-                             strerror(errno));
+	struct pollfd fds[MAX_CLIENTS];
 
-  Client client(clientSocket);
-  _clientMap[clientSocket] = client;
-  close(_serverSocket);
+	unsigned int	pollIdx = 0;
 
-  char host[NI_MAXHOST];
-  char service[NI_MAXSERV];
-
-  memset(host, 0, NI_MAXHOST);
-  memset(service, 0, NI_MAXSERV);
-
-  int result = getnameinfo((sockaddr *)&clientAddr, sizeof(clientAddr), host,
-                           NI_MAXHOST, service, NI_MAXSERV, 0);
-
-  if (result != 0) {
-    std::cerr << "getnameinfo failed: " << strerror(result) << std::endl;
-  } else {
-    std::cout << "New connection from " << host << ":" << service << std::endl;
-  }
-
-  char buffer[4096];
-  while (_running) {
-
-    memset(buffer, 0, sizeof(buffer));
-    int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-    if (bytesReceived == 0) {
-
-		std::cout << "Client disconnected" << std::endl;
-      	break;
-
-    } else if (bytesReceived < 0) {
-
-		std::cerr << "recv failed: " << strerror(errno) << std::endl;
-    	break;
-    }
-
-	std::cout << "Received: " << buffer << std::endl;
+	fds[pollIdx].fd = _serverSocket;
+	fds[pollIdx].events = POLLIN;
 
 
-	// parsen muss auf \r\n enden, sonst ist es kein kompletter command
-	// Parse::function(buffer, bytesReceived);
-
-
-	// zurücksenden
-	
+	while(_running) {
 
 
 
 
-  }
 
-  // Wenn ich hier den code erreiche, hab ich dann noch zugriff auf den client
-  // in _clientMap ??
 
-  /* 	poll()
 
+
+  		struct sockaddr_in clientAddr;
+  		socklen_t clientSize = sizeof(clientAddr);
+  		memset(&clientAddr, 0, clientSize);
+
+  		int clientSocket = accept(_serverSocket, (sockaddr *)&clientAddr, &clientSize);
+  		if (clientSocket == FATAL)
+  		  throw std::runtime_error(std::string("Error accept(): ") +
+  		                           strerror(errno));
+
+  		Client client(clientSocket);
+  		_clientMap[clientSocket] = client;
+
+
+  		char host[NI_MAXHOST];
+  		char service[NI_MAXSERV];
+
+  		memset(host, 0, NI_MAXHOST);
+  		memset(service, 0, NI_MAXSERV);
+
+  		int result = getnameinfo((sockaddr *)&clientAddr,
+  									sizeof(clientAddr),
+									host, NI_MAXHOST,
+									service, NI_MAXSERV,
+									0);
+
+  		if (result != 0) {
+  		  throw std::runtime_error(std::string("getnameinfo failed: ") + gai_strerror(result));
+
+  		} else {
+  		  std::cout << "New connection from " << host << ":" << service << std::endl;
+  		}
+
+  		char buffer[4096];
+  		while (true) {
+
+
+
+  			memset(buffer, 0, sizeof(buffer));
+  			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+  			if (bytesReceived == 0) {
+				std::cout << "Client disconnected" << std::endl;
+  			  	break;
+  			} else if (bytesReceived < 0)
+			    throw std::runtime_error(std::string("recv failed: ") + strerror(result));
+
+			std::cout << "Received: " << buffer << std::endl;
+
+		}
+		// parsen muss auf \r\n enden, sonst ist es kein kompletter command
+		// Parse::function(buffer, bytesReceived);
+
+
+		// zurücksenden
+
+
+	}
+	// Wenn ich hier den code erreiche, hab ich dann noch zugriff auf den client
+ 	 // in _clientMap ??
+
+  	/* 	poll()
 
     recv(), send(), recvfrom(), sendto() */
 }

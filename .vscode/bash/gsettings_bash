@@ -1,0 +1,33 @@
+
+
+
+############################################################
+# 1) WORKSPACE NAVIGATION – GNOME Desktop
+#    Ctrl+Alt+Up/Down + Ctrl+Alt+Left/Right
+############################################################
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up []
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down []
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left []
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right []
+
+############################################################
+# 2) WORKSPACE MOVEMENT – Fenster auf anderen Workspace schieben
+############################################################
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up []
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down []
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left []
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right []
+
+############################################################
+# 3) MUTTER BINDINGS – Wayland / Shell-Level Extras
+############################################################
+gsettings set org.gnome.mutter.keybindings switch-monitor []
+
+############################################################
+# 4) POP SHELL (falls installiert – sonst ignoriert GNOME das einfach)
+############################################################
+gsettings set org.gnome.shell.extensions.pop-shell move-to-workspace-up []
+gsettings set org.gnome.shell.extensions.pop-shell move-to-workspace-down []
+gsettings set org.gnome.shell.extensions.pop-shell move-to-workspace-left []
+gsettings set org.gnome.shell.extensions.pop-shell move-to-workspace-right []
+

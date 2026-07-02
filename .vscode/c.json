@@ -1,0 +1,271 @@
+//FILE c.json kommt nach -> ~/.config/Code/User/snippets/c.json
+
+{
+
+
+	"While loop 42":
+	{
+        "prefix": "while",
+        "body":
+		[
+            "while (${1:str}[${2:i}])",
+            "{",
+            "\t$0",
+            "\t${2:i}++;",
+            "}"
+        ],
+        "description": "42 while loop",
+        "scope": "c"
+    },
+
+
+	"Function Prototype":
+	{
+        "prefix": "fun",
+        "body":
+		[
+            "${1:void}\t${2:function}(${3:t_data *data}, ${4:char *str}, ${6:int nb})",
+			"{",
+            "\t$0",
+            "\treturn ;",
+            "}"
+        ],
+        "description": "42 function",
+        "scope": "c"
+    },
+
+
+	"Typedef Struct":
+	{
+    	"prefix": "tstruct",
+    	"body":
+		[
+    	    "typedef struct s_${1:data}",
+    	    "{",
+    	    "\t$0",
+    	    "} \tt_${1:data};"
+    	],
+    	"description": "42 data typedef struct",
+    	"scope": "c"
+	},
+
+
+    "For Loop":
+	{
+        "prefix": "for",
+        "body":
+		[
+        	"for (int ${1:i} = 0; ${1} < ${2:10}; ${1}++)",
+        	"{",
+        	"\t$0",
+        	"}"
+        ],
+        "description": "for loop",
+        "scope": "c"
+    },
+
+
+	"ARGV main Function":
+	{
+    	"prefix": "av",
+    	"body":
+		[
+    	    "int\tmain(int ac, char **av)",
+    	    "{",
+			"\t$0",
+    	    "\treturn (0);",
+    	    "}"
+    	],
+    	"description": "argv main function",
+    	"scope": "c"
+	},
+
+
+	"int main function":
+	{
+    	"prefix": "mainf",
+    	"body":
+		[
+    	    "int\tmain(void)",
+    	    "{",
+			"\t$0",
+    	    "\treturn (0);",
+    	    "}"
+    	],
+    	"description": "void main function",
+    	"scope": "c"
+	},
+
+	"Calloc + Fail Check":
+	{
+    	"prefix": "cal",
+    	"body":
+		[
+    	    "${1:ptr} = ft_calloc(${2:member}, ${3:size});",
+    	    "if (!${1})",
+    	    "\treturn (${4:NULL});",
+			"$0"
+    	],
+    	"description": "42 ft_calloc + null-check",
+    	"scope": "c"
+	},
+
+
+	"Fail Check":
+	{
+    	"prefix": "fail",
+    	"body":
+		[
+    	    "if (!${1})",
+    	    "\treturn (${2:NULL});",
+			"$0"
+    	],
+    	"description": "fail + null-check",
+    	"scope": "c"
+	},
+
+	"char pointer 42":
+	{
+    	"prefix": "ch",
+    	"body":
+		[
+    	    "char *${1:str};",
+			"$0"
+    	],
+    	"description": "char pointer snippet",
+    	"scope": "c"
+	},
+
+
+	"printf":
+	{
+    	"prefix": "printf",
+    	"body":
+		[
+    	    "printf(\"${1:string}\\n\", ${2:var});",
+			"$0"
+    	],
+    	"description": "printf snippet",
+    	"scope": "c"
+	},
+
+
+
+	"sizeof":
+	{
+    	"prefix": "size",
+    	"body":
+		[
+    	    "sizeof(${1:size})"
+    	],
+    	"description": "sizeof snippet",
+    	"scope": "c"
+	},
+
+
+
+	"Include Libaries":
+	{
+    	"prefix": "inc",
+    	"body":
+		[
+    	    "#include \"${1:libary}.h\"",
+			"$0"
+    	],
+    	"description": "42 include libary",
+    	"scope": "c"
+	},
+
+
+
+	"define 42":
+	{
+    	"prefix": "def",
+    	"body":
+		[
+    	    "#define ${1:MAKRO} ${2:value}",
+			"$0"
+    	],
+    	"description": "42 define",
+    	"scope": "c"
+	},
+
+
+
+
+	"ifnef 42":
+	{
+    	"prefix": "ifndef",
+    	"body":
+		[
+    	    "#ifndef ${1:HEADER_H}",
+        	"# define ${1}",
+        	"",
+        	"$0",
+        	"",
+        	"#endif /* ${1} */"
+    	],
+    	"description": "42 #ifndef",
+    	"scope": "c"
+	},
+
+
+
+
+    "If Statement":
+	{
+        "prefix": "if",
+        "body":
+		[
+            "if (${1:condition})",
+			"{",
+            "\t$0",
+            "}"
+        ],
+        "description": "My custom if statement",
+        "scope": "c"
+    },
+
+    "Else - If Statement":
+	{
+        "prefix": "elif",
+        "body":
+		[
+            "${1:if} (${2:condition})",
+			"{",
+            "\t$4",
+            "}",
+			"else if (${3:condition})",
+			"{",
+            "\t$0",
+            "}"
+        ],
+        "description": "else if statement",
+        "scope": "c"
+    },
+
+
+    "Switch Block":
+	{
+        "prefix": "switch",
+        "body": [
+            "switch (${1:expr}) {",
+            "\tcase ${2:value}:",
+            "\t\t$0",
+            "\t\tbreak;",
+            "",
+            "\tdefault:",
+            "\t\tbreak;",
+            "}"
+        ],
+        "description": "My custom switch block",
+        "scope": "c"
+    }
+
+}
+
+
+
+
+
+

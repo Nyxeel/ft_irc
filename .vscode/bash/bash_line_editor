@@ -1,0 +1,148 @@
+#########################################
+#	FISH GHOSTEXT in BASH
+#########################################
+
+
+ble ausschalten → ble-detach
+ble einschalten → source ~/.local/share/blesh/ble.sh
+
+
+# 1) Quick INSTALL to BASHRC (If this doesn't work, please follow Sec 1.3)
+
+mkdir -p Tools && cd Tools ##dort ble.sh downloaden und maken
+git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git
+make -C ble.sh install PREFIX=~/.local
+echo 'source -- ~/.local/share/blesh/ble.sh' >> ~/.bashrc
+#--> sudo apt install gawk
+
+DESIGN ändern in:
+$ touch .blerc  ## Datei erstellen!
+
+#SHELL UPDATEN
+source ~/.local/share/blesh/ble.sh
+
+
+
+den Text unterhalb einfügen!
+######################################################################################################
+# 1) Optionen – Verhalten von ble.sh
+########################################################################
+
+# Syntax- und Filename-Highlighting aktiv,
+# aber alle zugehörigen Faces setzen wir auf weiß.
+bleopt highlight_syntax=always
+bleopt highlight_filename=always
+bleopt highlight_variable=
+
+# Auto-Complete (Ghosttext) aktiv
+bleopt complete_auto_complete=1
+bleopt complete_auto_delay=80        # schnelle Vorschläge
+bleopt complete_auto_history=1
+
+# Klassische Completion eher schlicht
+bleopt complete_ambiguous=           # leer = aus
+bleopt complete_menu_complete=1       # Menü-Completion
+bleopt complete_menu_filter=1
+
+bleopt complete_auto_wordbreaks=$'/'
+
+# Diverse Marker deaktivieren
+bleopt prompt_eol_mark=''
+bleopt exec_errexit_mark=
+bleopt exec_exit_mark=
+bleopt exec_elapsed_mark=
+bleopt edit_marker=
+bleopt edit_marker_error=
+
+
+########################################################################
+# 2) Farben – alles weiß, Ghosttext grau
+########################################################################
+
+# Standardtext
+ble-face syntax_default=fg=#FDFBF7
+
+# Befehle
+ble-face syntax_command=fg=#FDFBF7
+ble-face command_builtin=fg=#FDFBF7
+ble-face command_alias=fg=#FDFBF7
+ble-face command_keyword=fg=#FDFBF7
+ble-face command_file=fg=#FDFBF7
+
+# WICHTIG: Directories unterstreichen
+ble-face command_directory=fg=#FDFBF7,underline
+
+# Filename-Highlighting (Completion, Menüs, etc.)
+ble-face filename_directory=fg=#FDFBF7,underline
+ble-face filename_executable=fg=#FDFBF7
+ble-face filename_link=fg=#FDFBF7
+ble-face filename_orphan=fg=#FDFBF7
+ble-face filename_block=fg=#FDFBF7
+ble-face filename_character=fg=#FDFBF7
+ble-face filename_pipe=fg=#FDFBF7
+ble-face filename_socket=fg=#FDFBF7
+ble-face filename_setuid=fg=#FDFBF7
+ble-face filename_setgid=fg=#FDFBF7
+ble-face filename_other=fg=#FDFBF7
+ble-face filename_url=fg=#FDFBF7      # keine blauen URLs mehr
+ble-face filename_warning=fg=#FDFBF7
+
+# Ghosttext (Autosuggestion)
+ble-face auto_complete=fg=240,bg=none
+
+
+########################################################################
+# 3) Alle Hintergrundfarben entfernen
+########################################################################
+
+ble-face argument_error=fg=#FDFBF7,bg=none
+ble-face cmdinfo_cd_cdpath=fg=#FDFBF7,bg=none
+
+ble-face region=bg=none
+ble-face region_insert=bg=none
+ble-face region_match=bg=none
+ble-face region_target=bg=none
+
+ble-face overwrite_mode=bg=none
+ble-face disabled=bg=none
+
+ble-face syntax_error=fg=#FDFBF7,bg=none
+ble-face syntax_quotation=bg=none
+ble-face syntax_quoted=bg=none
+ble-face syntax_history_expansion=fg=#FDFBF7,bg=none
+
+ble-face menu_filter_input=fg=#FDFBF7,bg=none
+ble-face prompt_status_line=fg=#FDFBF7,bg=none
+ble-face vbell_erase=bg=none
+
+
+########################################################################
+# 4) Keybindings – TAB
+########################################################################
+
+# TAB im normalen Modus: Completion-Menü, mit TAB durch Kandidaten springen
+bleopt complete_menu_complete=1
+bleopt complete_menu_filter=1
+ble-bind -f TAB  menu-complete
+ble-bind -f C-i  menu-complete
+
+# TAB im auto_complete-Modus: nur das nächste "word" (bis /) einfügen
+ble-bind -m auto_complete -f TAB  'auto_complete/@end insert-word'
+ble-bind -m auto_complete -f C-i  'auto_complete/@end insert-word'
+
+
+
+########################################################################
+# 5) HEREDOC
+########################################################################
+
+#Heredoc-Inhalt komplett weiß
+ble-face syntax_document=fg=#FDEDED,bg=none
+
+#Heredoc-Marker (<<EOF, <<'EOF') auch weiß
+ble-face syntax_document_begin=fg=222,bg=none
+
+#Quoting / Delimiter weiß, damit nix mehr grün durchkommt
+ble-face syntax_quotation=fg=#FDEDED,bg=none
+ble-face syntax_quoted=fg=#FDEDED,bg=none
+ble-face syntax_delimiter=fg=#FDEDED,bg=none

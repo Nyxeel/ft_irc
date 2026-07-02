@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 16:33:26 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/01 22:58:53 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 15:43:52 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 #include <iostream>
 #include <string>
 
-Server* g_server = NULL;
+Server* 		g_server = NULL;
+unsigned int	g_signal = 0;
 
 inline void print(std::string str) {
 

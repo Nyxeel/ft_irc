@@ -1,0 +1,194 @@
+{
+    // === FILES ===
+    "files.autoSave": "afterDelay",                    // speichert Dateien automatisch nach kurzer Zeit
+    "files.insertFinalNewline": false,                  // fügt am Ende der Datei automatisch eine Leerzeile hinzu
+    "files.trimFinalNewlines": false,                  // entfernt keine überzähligen Leerzeilen am Ende
+    "files.trimTrailingWhitespace": true,              // entfernt Leerzeichen am Zeilenende
+
+    // === EDITOR ===
+    "editor.cursorSmoothCaretAnimation": "on",         // animiert Cursorbewegungen weich
+    "editor.guides.bracketPairs": "active",            // zeigt Linien zwischen passenden Klammern
+    "editor.inlayHints.enabled": "off",                // blendet Inlay-Hints aus (z. B. Typinfos)
+    "editor.lineNumbers": "on",                        // Zeilennummern aktiv
+    "editor.minimap.enabled": false,                   // kein Mini-Map rechts
+    "editor.renderWhitespace": "selection",            // zeigt Leerzeichen nur bei Auswahl
+    "editor.rulers": [80],                             // visuelle 80-Zeichen-Grenze
+    "editor.smoothScrolling": true,                    // weiches Scrollen
+    "editor.wordWrap": "off",                           // automatische Zeilenumbrüche
+	"editor.inlineSuggest.enabled": false,			  // Inline-Vorschläge deaktiviert
+
+
+
+    // ==== TAB RULES ====
+    "editor.tabSize": 4,                               // Tabweite = 4 Zeichen
+    "editor.insertSpaces": false,                      // Tabulatortaste erzeugt echte Tabs, keine Spaces
+    "editor.detectIndentation": false,                 // ignoriert Indentation aus Datei, nutzt obige Settings
+
+    // === SNIPPETS / SUGGEST GLOBAL ===
+    // C/C++-Extension soll keine eigenen Snippets mehr anbieten
+    "C_Cpp.suggestSnippets": true,
+
+    // Snippets in der Vorschlagsliste ganz nach oben
+    "editor.snippetSuggestions": "top",
+    // Snippets blockieren Quick-Suggestions nicht
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+	 // Snippets AN
+    "editor.suggest.showSnippets": true,
+
+
+	// === LANGUAGE-SPECIFIC ===
+    "[c]": {
+    // Wortvorschläge aus dem aktuellen Dokument AUS
+    "editor.wordBasedSuggestions": "off",
+
+    // Vorschläge ersetzen das Wort unter dem Cursor
+    "editor.suggest.insertMode": "replace",
+
+    // Semantisches Highlighting für C an
+    "editor.semanticHighlighting.enabled": true,
+
+    // Zeigt Keywords wie while/for/if in der Suggestions-Liste
+    "editor.suggest.showKeywords": true,
+
+    // Keine reinen Wort-Vorschläge (random Wörter aus dem File)
+    "editor.suggest.showWords": false,
+
+    // Deine User-Snippets (c.json) sollen sichtbar sein
+    "editor.suggest.showSnippets": true,
+
+    // Symbole aus Libs/Headers:
+    "editor.suggest.showFunctions": true,   // printf, pthread_create, ...
+    "editor.suggest.showVariables": true,  // errno, globale Variablen
+    "editor.suggest.showConstants": false,  // INT_MIN, INT_MAX, ...
+    "editor.suggest.showStructs": false,    // struct-Namen / typedefs
+    "editor.suggest.showEnums": false,      // enum-Namen, Enum-Werte
+
+    // Strengeres Matching (kein fuzzy Müll)
+    "editor.suggest.filterGraceful": false,
+    "editor.suggest.localityBonus": false,
+    "editor.suggest.matchOnWordStartOnly": true,
+    "editor.suggest.matchOnWordBoundary": false,
+
+    // Quick Suggestions im Code an (damit Snippets/Funktionen wieder erscheinen)
+    "editor.quickSuggestions": {
+        "other": true,			//deaktiviert AUTO suggestions!
+        "comments": false,
+        "strings": false
+    },
+
+    // Vorschläge dürfen auch bei Trigger-Characters aufgehen (z.B. .)
+    "editor.suggestOnTriggerCharacters": true
+	},
+
+    "[cpp]": {
+        "editor.formatOnSave": false                  // C++ automatisch formatieren beim Speichern
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[svelte]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // === THEMES & WORKBENCH ===
+    "workbench.editorAssociations": {
+        "*.csv": "default"
+    },
+
+    // === GIT / GITHUB ===
+    "git.autofetch": false,                             // holt automatisch Updates
+    "git.confirmSync": false,                          // keine Rückfrage beim Sync
+    "github.copilot.enable": {
+        // "c++": true                                  // Copilot für C++ deaktiviert (kommentiert)
+    },
+
+    // === PYTHON ===
+    "pylint.args": [
+        "--generated-members=cv2.*"                    // erlaubt OpenCV generierte Mitglieder
+    ],
+
+    // === GO ===
+    "go.toolsManagement.autoUpdate": true,             // Go-Tools werden automatisch aktualisiert
+
+    // === SCSS ===
+    "scss.format.braceStyle": "expand",                // Klammern in neuer Zeile bei SCSS
+
+    // === SVELTE ===
+    "svelte.enable-ts-plugin": true,                   // aktiviert TypeScript-Plugin in Svelte
+
+    // === SECURITY ===
+    "security.workspace.trust.untrustedFiles": "open", // öffnet unsichere Dateien ohne Nachfrage
+
+    // === MISC ===
+    "sherlock.userId": "59c42001-323a-455a-9606-a343ece7e878",
+    "explorer.confirmDelete": false,
+
+    // === 42 HEADER ===
+    "42header.username": "pjelinek",
+    "42header.email": "pjelinek@student.42.fr",
+
+    // =========================================================
+    // THEME — wird auf JEDEM deiner Computer erzwungen
+    // (diese Zeile überschreibt ggf. frühere Theme-Einträge)
+    // =========================================================
+    "workbench.colorTheme": "Default High Contrast",
+
+    // =========================================================
+    // CYBERPUNK-VIOLETTE FENSTER-HERVORHEBUNG
+    // (Editor, Terminal, Panel)
+    // =========================================================
+    "workbench.colorCustomizations": {
+        // 🔥 AKTIVE EDITOR-GRUPPE / TAB
+        //"tab.activeBorderTop": "#09ff00",
+        //"editorGroupHeader.tabsBorder": "#11ff00",
+        "tab.activeBackground": "#011544",          // dunkles Violett/Blau
+
+        // INAKTIVE EDITOR-GRUPPEN GRAUER RAND
+        "editorGroup.border": "#3f4541",
+
+        // HIGHLIGHT CURRENT LINE
+        "editor.lineHighlightBackground": "#011544",
+        "editor.lineHighlightBorder": "#6a0269",
+
+        "activityBar.background": "#000d2a",
+        "titleBar.activeBackground": "#000d2a",
+        "titleBar.activeForeground": "#FDFBF7"
+    },
+
+    // =========================================================
+    // TERMINAL: Befehle sollen NICHT im Terminal landen
+    // =========================================================
+    "terminal.integrated.commandsToSkipShell": [
+        "workbench.view.explorer",
+        "workbench.action.terminal.focus"
+        // "workbench.action.terminal.toggleTerminal",
+        // "workbench.action.focusActiveEditorGroup",
+        // "workbench.action.terminal.focusNextPane",
+        // "workbench.action.terminal.focusPreviousPane"
+	],
+	"terminal.integrated.fontFamily": "monospace",
+	"terminal.integrated.defaultProfile.linux": "bash",
+	"terminal.integrated.suggest.enabled": false,
+	"terminal.integrated.suggest.suggestOnTriggerCharacters": false,
+	"terminal.integrated.shellIntegration.enabled": false,
+
+
+	// =========================================================
+    // CLANG TIDY tracking
+    // =========================================================
+
+	"C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.runAutomatically": true,
+    "C_Cpp.codeAnalysis.clangTidy.path": "clang-tidy",
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true,
+	"C_Cpp.codeAnalysis.enabled": true,
+	"C_Cpp.default.compilerPath": "/usr/bin/c++",
+
+}
