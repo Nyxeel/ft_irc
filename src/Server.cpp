@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 18:55:13 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/02 20:05:57 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,21 +162,60 @@ void Server::setup() {
 
 void Server::run() {
 
+/*
+	      struct pollfd {
+           int   fd;          //file descriptor
+           short events;      //requested events
+           short revents;     //returned events
+        };
+*/
 
-	struct pollfd fds[MAX_CLIENTS];
+	std::vector<pollfd> fds;
 
-	unsigned int	pollIdx = 0;
 
-	fds[pollIdx].fd = _serverSocket;
-	fds[pollIdx].events = POLLIN;
 
+	struct pollfd serverfd;
+	serverfd.fd = _serverSocket;
+	serverfd.events = POLLIN;
+	fds.push_back(serverfd);
 
 	while(_running) {
 
+		int polls = poll(fds.data(), fds.size(), -1);
+		if (polls == 0)
+			throw std::runtime_error("Error poll: system call timed out"); //redundant because poll(timeout = -1)
+		if (polls < 0)
+			throw std::runtime_error(std::string("Error poll: ") + strerror(errno));
+
+		for (iterator socket = fds.begin(); socket != fds.end(); socket++) {
+
+
+
+			if (!(socket->revents & POLLIN))
+				continue;
+
+			if(socket->fd == _serverSocket){
+
+				// Ereignis auf dem LISTENING-Socket → neue Verbindung
+
+				//accept Client
+				// (....)
+
+			}
+
+			else {
+				// Ereignis auf einem CLIENT-Socket → Daten lesen
+				//reciv() and send()
+
+			}
 
 
 
 
+
+
+
+		}
 
 
 
