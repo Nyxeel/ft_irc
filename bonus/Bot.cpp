@@ -1,5 +1,5 @@
 #include "Bot.hpp"
-#include "Parser.hpp"
+#include "../inc/Parser.hpp"
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
