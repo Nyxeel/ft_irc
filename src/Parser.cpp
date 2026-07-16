@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <cctype>
 
 //(de)constructor
 
@@ -23,7 +24,7 @@ void Parser::_parseSingleLine(const std::string &line, IrcMessage &msg) {
 
 	if (s.empty()) return;
 
-	if (s[0] == ':') {
+	if (!s.empty() && s[0] == ':') {
 		size_t spacePos = s.find(' ');
 		if (spacePos != std::string::npos) {
 			msg.prefix = s.substr(1, spacePos - 1);
@@ -64,7 +65,7 @@ void Parser::_trimString(std::string &str) {
 		return;
 	}
 
-	size_t end = str.find_first_not_of(" \t\r\n");
+	size_t end = str.find_last_not_of(" \t\r\n");
 	str = str.substr(start, end - start + 1);
 }
 
@@ -116,6 +117,18 @@ bool Parser::isValidNickname(const std::string &nick) {
 	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
 	for (size_t i = 0; i < nick.length(); ++i)
 		if (allowed.find(nick[i]) == std::string::npos) return false;
+	
+	return true;
+}
+
+bool Parser::isValidUsername(const std::string &user) {
+	if (user.empty() || user.length() > 9) return false;
+
+	if (std::isdigit(user[0]) || user[0] == '-') return false;
+
+	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
+	for (size_t i = 0; i < user.length(); ++i)
+		if (allowed.find(user[i]) == std::string::npos) return false;
 	
 	return true;
 }
