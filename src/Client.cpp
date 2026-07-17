@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 12:19:14 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 06:11:34 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,4 @@ Client &Client::operator=(const Client &other) {
 
 Client::~Client() {
 
-	if (_clientSocket != -1) {
-		close(_clientSocket);
-		_clientSocket = -1;
-	}
 }

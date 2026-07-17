@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 20:05:57 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 06:16:18 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,22 +162,14 @@ void Server::setup() {
 
 void Server::run() {
 
-/*
-	      struct pollfd {
-           int   fd;          //file descriptor
-           short events;      //requested events
-           short revents;     //returned events
-        };
-*/
-
 	std::vector<pollfd> fds;
 
+	struct pollfd serverfd;         // ein pollfd-Eintrag für den Server-Socket
+	serverfd.fd = _serverSocket;    // welcher fd überwacht werden soll
+	serverfd.events = POLLIN;       // worauf gewartet wird: "lesbar" = neue Verbindung wartet
 
 
-	struct pollfd serverfd;
-	serverfd.fd = _serverSocket;
-	serverfd.events = POLLIN;
-	fds.push_back(serverfd);
+	fds.push_back(serverfd);        // in die Liste aller überwachten fds aufnehmen
 
 	while(_running) {
 
@@ -190,95 +182,81 @@ void Server::run() {
 		for (iterator socket = fds.begin(); socket != fds.end(); socket++) {
 
 
-
 			if (!(socket->revents & POLLIN))
 				continue;
 
+
+
 			if(socket->fd == _serverSocket){
 
-				// Ereignis auf dem LISTENING-Socket → neue Verbindung
+  				struct sockaddr_in clientAddr;
+  				socklen_t clientSize = sizeof(clientAddr);
+  				memset(&clientAddr, 0, clientSize);
 
-				//accept Client
-				// (....)
+  				int clientSocket = accept(_serverSocket, (sockaddr *)&clientAddr, &clientSize);
+  				if (clientSocket == FATAL)
+  				  throw std::runtime_error(std::string("Error accept(): ") +
+  				                           strerror(errno));
 
+  				_clientMap[clientSocket] =	Client(clientSocket);
+
+
+				struct pollfd clientfd;
+				clientfd.fd = clientSocket;
+				clientfd.events = POLLIN;
+				fds.push_back(clientfd);
+
+
+  				char host[NI_MAXHOST];
+  				char service[NI_MAXSERV];
+  				memset(host, 0, NI_MAXHOST);
+  				memset(service, 0, NI_MAXSERV);
+
+  				int result = getnameinfo((sockaddr *)&clientAddr,
+  											sizeof(clientAddr),
+											host, NI_MAXHOST,
+											service, NI_MAXSERV,
+											0);
+
+				if (result != 0) {
+				    std::cerr << "getnameinfo failed: " << gai_strerror(result) << std::endl;
+				    std::cout << "New connection (host unknown)" << std::endl;
+				} else {
+				    std::cout << "New connection from " << host << ":" << service << std::endl;
+				}
 			}
+
+
 
 			else {
 				// Ereignis auf einem CLIENT-Socket → Daten lesen
 				//reciv() and send()
 
+
+				char buffer[4096];
+  				memset(buffer, 0, sizeof(buffer));
+  				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
+
+				if (bytesReceived <= 0) {
+
+					if (bytesReceived == 0)
+						std::cout << "Client disconnected" << std::endl;
+					else
+						std::cerr << "recv failed: " << strerror(errno) << std::endl;
+
+					close(socket->fd);
+					_clientMap.erase(socket->fd);
+					socket = fds.erase(socket);
+					socket--;              // Schleife macht danach socket++, das gleicht das aus
+					continue;
+				}
+				std::cout << "Received: " << buffer << std::endl;
+
 			}
 
-
-
-
-
-
-
 		}
-
-
-
-  		struct sockaddr_in clientAddr;
-  		socklen_t clientSize = sizeof(clientAddr);
-  		memset(&clientAddr, 0, clientSize);
-
-  		int clientSocket = accept(_serverSocket, (sockaddr *)&clientAddr, &clientSize);
-  		if (clientSocket == FATAL)
-  		  throw std::runtime_error(std::string("Error accept(): ") +
-  		                           strerror(errno));
-
-  		Client client(clientSocket);
-  		_clientMap[clientSocket] = client;
-
-
-  		char host[NI_MAXHOST];
-  		char service[NI_MAXSERV];
-
-  		memset(host, 0, NI_MAXHOST);
-  		memset(service, 0, NI_MAXSERV);
-
-  		int result = getnameinfo((sockaddr *)&clientAddr,
-  									sizeof(clientAddr),
-									host, NI_MAXHOST,
-									service, NI_MAXSERV,
-									0);
-
-  		if (result != 0) {
-  		  throw std::runtime_error(std::string("getnameinfo failed: ") + gai_strerror(result));
-
-  		} else {
-  		  std::cout << "New connection from " << host << ":" << service << std::endl;
-  		}
-
-  		char buffer[4096];
-  		while (true) {
-
-
-
-  			memset(buffer, 0, sizeof(buffer));
-  			int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-  			if (bytesReceived == 0) {
-				std::cout << "Client disconnected" << std::endl;
-  			  	break;
-  			} else if (bytesReceived < 0)
-			    throw std::runtime_error(std::string("recv failed: ") + strerror(result));
-
-			std::cout << "Received: " << buffer << std::endl;
-
-		}
-		// parsen muss auf \r\n enden, sonst ist es kein kompletter command
-		// Parse::function(buffer, bytesReceived);
-
-
-		// zurücksenden
 
 
 	}
-	// Wenn ich hier den code erreiche, hab ich dann noch zugriff auf den client
- 	 // in _clientMap ??
 
-  	/* 	poll()
-
-    recv(), send(), recvfrom(), sendto() */
 }
