@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 08:15:08 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 11:12:32 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,13 +182,10 @@ void Server::run() {
 		std::vector<pollfd> addClients;
 		for (iterator socket = fds.begin(); socket != fds.end(); socket++) {
 
+			if (!(socket->revents & POLLIN) && !(socket->revents & POLLHUP))
+    			continue;  // skip wenn KEINE Events
 
-			if (!(socket->revents & POLLIN))
-				continue;
-
-
-
-			if(socket->fd == _serverSocket){
+			if (socket->fd == _serverSocket){
 
   				struct sockaddr_in clientAddr;
   				socklen_t clientSize = sizeof(clientAddr);
@@ -225,11 +222,9 @@ void Server::run() {
 				// Ereignis auf einem CLIENT-Socket → Daten lesen
 				//reciv() and send()
 
-
 				char buffer[4096];
   				memset(buffer, 0, sizeof(buffer));
   				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
-
 				if (bytesReceived <= 0) {
 
 					if (bytesReceived == 0)
@@ -237,10 +232,21 @@ void Server::run() {
 					else
 						std::cerr << "recv failed: " << strerror(errno) << std::endl;
 
-					_clientMap.erase(socket->fd);  // Client destructor wird gecalled und closed _clientfd
+					close(socket->fd);           	// Server schließt FD
+					_clientMap.erase(socket->fd);  	// Client destructor wird gecalled und closed _clientfd
 					socket = fds.erase(socket);
-					socket--;              // Schleife macht danach socket++, das gleicht das aus
+					socket--;              			// Schleife macht danach socket++, das gleicht das aus
 					continue;
+				}
+
+				_clientMap[socket->fd].appendBuffer(std::string(buffer, bytesReceived));
+
+				std::string& buf = _clientMap[socket->fd].getBuffer();
+				size_t pos;
+				while ((pos = buf.find("\r\n")) != std::string::npos) {
+				    std::string cmd = buf.substr(0, pos);
+				    buf.erase(0, pos + 2);
+				    //handleCommand(socket->fd, cmd);
 				}
 				std::cout << "Received: " << buffer << std::endl;
 
