@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 19:59:24 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 08:01:16 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,6 @@
 		};
 */
 
-typedef std::vector<int>::iterator iterator;
-
 class Server {
 
 	typedef std::vector<pollfd>::iterator iterator;
@@ -71,8 +69,5 @@ class Server {
 };
 
 extern Server* g_server;
-extern unsigned int g_signal;
-
-
 
 #endif

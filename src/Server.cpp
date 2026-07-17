@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 06:16:18 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 08:15:08 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <ctime>
 #include <fcntl.h>  // fcntl(), O_NONBLOCK
 #include <iostream> // close()
-#include <netdb.h>  // NI_MAXHOST, NI_MAXSERV, getnameinfo()
 #include <poll.h>   // poll(), struct pollfd
 #include <signal.h>
 #include <stdexcept>
@@ -81,7 +80,7 @@ void Server::init_signals() {
 
   sa.sa_handler = signalHandler;
   sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_RESTART; // TODO: SA_RESTART in conflict with poll?
+  sa.sa_flags = 0;
 
   sigaction(SIGINT, &sa, NULL);
   signal(SIGPIPE, SIG_IGN);
@@ -106,7 +105,6 @@ void Server::stop() {
 
   if (!_running)
     return;
-  // TODO: close all client sockets
   _running = false;
 }
 
@@ -117,7 +115,6 @@ inline void Server::cleanSockets() {
 	  _serverSocket = -1;
 	}
 	printServerStop();
-  // TODO: close all client sockets
 }
 
 // ───────────────────────────────────────────────
@@ -175,10 +172,14 @@ void Server::run() {
 
 		int polls = poll(fds.data(), fds.size(), -1);
 		if (polls == 0)
-			throw std::runtime_error("Error poll: system call timed out"); //redundant because poll(timeout = -1)
-		if (polls < 0)
+			throw std::runtime_error("Error poll: system call timed out"); //redundant -> poll(timeout = -1)
+		if (polls < 0) {
+			if (errno == EINTR)
+        		break;  // Signal interrupt with control + c
 			throw std::runtime_error(std::string("Error poll: ") + strerror(errno));
+		}
 
+		std::vector<pollfd> addClients;
 		for (iterator socket = fds.begin(); socket != fds.end(); socket++) {
 
 
@@ -198,32 +199,24 @@ void Server::run() {
   				  throw std::runtime_error(std::string("Error accept(): ") +
   				                           strerror(errno));
 
+				// Client Non-blocking setzen
+  				if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == FATAL)
+  				  throw std::runtime_error(std::string("Error fcntl(): ") + strerror(errno));
+
   				_clientMap[clientSocket] =	Client(clientSocket);
 
 
 				struct pollfd clientfd;
 				clientfd.fd = clientSocket;
 				clientfd.events = POLLIN;
-				fds.push_back(clientfd);
 
+				addClients.push_back(clientfd); //adde clients nach dem for loop um foor loop size nicht zu veraendern
 
-  				char host[NI_MAXHOST];
-  				char service[NI_MAXSERV];
-  				memset(host, 0, NI_MAXHOST);
-  				memset(service, 0, NI_MAXSERV);
-
-  				int result = getnameinfo((sockaddr *)&clientAddr,
-  											sizeof(clientAddr),
-											host, NI_MAXHOST,
-											service, NI_MAXSERV,
-											0);
-
-				if (result != 0) {
-				    std::cerr << "getnameinfo failed: " << gai_strerror(result) << std::endl;
-				    std::cout << "New connection (host unknown)" << std::endl;
-				} else {
-				    std::cout << "New connection from " << host << ":" << service << std::endl;
-				}
+				char ip[INET_ADDRSTRLEN];
+				if (inet_ntop(AF_INET, &clientAddr.sin_addr, ip, sizeof(ip)) == NULL)
+				    std::cout << "New connection (unknown ip)" << std::endl;
+				else
+				    std::cout << "New connection from " << ip << ":" << ntohs(clientAddr.sin_port) << std::endl;
 			}
 
 
@@ -244,8 +237,7 @@ void Server::run() {
 					else
 						std::cerr << "recv failed: " << strerror(errno) << std::endl;
 
-					close(socket->fd);
-					_clientMap.erase(socket->fd);
+					_clientMap.erase(socket->fd);  // Client destructor wird gecalled und closed _clientfd
 					socket = fds.erase(socket);
 					socket--;              // Schleife macht danach socket++, das gleicht das aus
 					continue;
@@ -253,10 +245,9 @@ void Server::run() {
 				std::cout << "Received: " << buffer << std::endl;
 
 			}
-
 		}
 
-
+		for (size_t i = 0; i < addClients.size(); i++)
+    			fds.push_back(addClients[i]);
 	}
-
 }
