@@ -1,0 +1,27 @@
+#########################################
+# >>> LS_COLORS – USER OVERRIDES <<<
+#########################################
+unset LS_COLORS
+LS_COLORS=''
+LS_COLORS="$LS_COLORS:di=1;38;5;223"
+LS_COLORS="$LS_COLORS:ex=1;38;5;160"
+LS_COLORS="$LS_COLORS:ln=1;38;5;93"
+LS_COLORS="$LS_COLORS:or=1;38;5;196;48;5;52"
+LS_COLORS="$LS_COLORS:*.zip=38;5;208"
+LS_COLORS="$LS_COLORS:*.tar=38;5;208"
+LS_COLORS="$LS_COLORS:*.gz=38;5;208"
+LS_COLORS="$LS_COLORS:*.tgz=38;5;208"
+LS_COLORS="$LS_COLORS:*.tbz=38;5;208"
+LS_COLORS="$LS_COLORS:*.tbz2=38;5;208"
+LS_COLORS="$LS_COLORS:*.bz2=38;5;208"
+LS_COLORS="$LS_COLORS:*.xz=38;5;208"
+LS_COLORS="$LS_COLORS:*.zst=38;5;208"
+LS_COLORS="$LS_COLORS:*.7z=38;5;208"
+LS_COLORS="$LS_COLORS:*.rar=38;5;208"
+export LS_COLORS
+
+alias ls='ls --color=auto'
+
+#########################################
+# <<< END LS_COLORS OVERRIDES <<<
+#########################################

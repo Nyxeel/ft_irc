@@ -1,0 +1,23 @@
+
+#########################################
+# >>> LS_COLORS – USER OVERRIDES <<<
+#########################################
+
+# Basis: systemweite DIR_COLORS laden
+if [ -x /usr/bin/dircolors ]; then
+    eval "$(dircolors -b /etc/DIR_COLORS)"
+fi
+
+# Eigene Farben drüberlegen (256-Farben)
+# === REQUIRED TYPES ===
+LS_COLORS="$LS_COLORS:di=1;38;5;223"      # directory → sandgelb
+LS_COLORS="$LS_COLORS:ex=1;38;5;160"      # executable → rot
+LS_COLORS="$LS_COLORS:ln=1;38;5;93"      # symlink → pink
+LS_COLORS="$LS_COLORS:or=1;38;5;196;48;5;52"  # broken symlink → rot + dunkler Hintergrund
+# Archive files → orange
+LS_COLORS="$LS_COLORS:*.zip=38;5;208:*.tar=38;5;208:*.gz=38;5;208:*.tgz=38;5;208:*.tbz=38;5;208:*.tbz2=38;5;208:*.bz2=38;5;208:*.xz=38;5;208:*.zst=38;5;208:*.7z=38;5;208:*.rar=38;5;208"
+
+export LS_COLORS
+
+# Signal an /etc/profile.d/colorls.sh, dass es das NICHT mehr anfassen soll
+export USER_LS_COLORS=1

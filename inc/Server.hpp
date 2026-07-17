@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 00:47:34 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 08:01:16 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,17 @@
 #include <string>
 #include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
 #include <map>
+#include <vector>
+#include <poll.h>   // poll(), struct pollfd
+
 
 #include "Client.hpp"
 
 #define SUCCESS 0
 #define ERROR 	1
 #define FATAL	-1
+#define MAX_CLIENTS 1024
+
 
 /*
 		struct sockaddr_in {
@@ -36,8 +41,9 @@
 		};
 */
 
-
 class Server {
+
+	typedef std::vector<pollfd>::iterator iterator;
 
 	int						_serverSocket;
 	uint16_t 				_port;
@@ -63,7 +69,5 @@ class Server {
 };
 
 extern Server* g_server;
-
-
 
 #endif

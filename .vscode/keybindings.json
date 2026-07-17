@@ -1,0 +1,394 @@
+
+//#############################################################
+
+//  _  __________     ______ _____ _   _ _____ _____ _   _  _____  _____
+// | |/ /  ____\ \   / /  _ \_   _| \ | |  __ \_   _| \ | |/ ____|/ ____|
+// | ' /| |__   \ \_/ /| |_) || | |  \| | |  | || | |  \| | |  __| (___
+// |  < |  __|   \   / |  _ < | | | . ` | |  | || | | . ` | | |_ |\___ \
+// | . \| |____   | |  | |_) || |_| |\  | |__| || |_| |\  | |__| |____) |
+// |_|\_\______|  |_|  |____/_____|_| \_|_____/_____|_| \_|\_____|_____/
+
+//#############################################################
+
+[
+    // =========================================================
+    // CTRL + ALT + LEFT → egal wo du bist → Explorer öffnen/zeigen
+    // =========================================================
+    {
+        "key": "ctrl+alt+left",
+        "command": "workbench.view.explorer"
+    },
+
+    // =========================================================
+    // ALT + RIGHT im EXPLORER → zurück in den zuletzt aktiven Editor
+    // =========================================================
+    {
+        "key": "alt+right",
+        "command": "workbench.action.openEditorAtIndex1",
+        "when": "explorerViewletVisible && filesExplorerFocus"
+    },
+
+    //=========================================================
+    // ALT + LEFT/RIGHT im EDITOR → Editor-Gruppen wechseln
+    // =========================================================
+    {
+        "key": "alt+left",
+        "command": "workbench.action.focusPreviousGroup",
+        "when": "editorFocus"
+    },
+    {
+        "key": "alt+right",
+        "command": "workbench.action.focusNextGroup",
+        "when": "editorFocus"
+    },
+
+    // =========================================================
+    // ALT + SHIFT + RIGHT im EDITOR → aktuelle Datei nach rechts splitten
+    // =========================================================
+    {
+        "key": "alt+shift+right",
+        "command": "workbench.action.splitEditorRight",
+        "when": "editorFocus"
+    },
+
+    // =========================================================
+    // ALT + LEFT/RIGHT im TERMINAL → Terminal-Splits wechseln
+    // =========================================================
+    {
+        "key": "alt+left",
+        "command": "workbench.action.terminal.focusPreviousPane",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "alt+right",
+        "command": "workbench.action.terminal.focusNextPane",
+        "when": "terminalFocus"
+    },
+
+    // =========================================================
+    // ALT + SHIFT + RIGHT im TERMINAL → aktives Terminal splitten
+    // =========================================================
+    {
+        "key": "alt+shift+right",
+        "command": "workbench.action.terminal.split",
+        "when": "terminalFocus"
+    },
+
+    // =========================================================
+    // ALT + UP → von Terminal zurück in den Editor
+    // =========================================================
+    {
+        "key": "alt+up",
+        "command": "workbench.action.focusActiveEditorGroup",
+        "when": "terminalFocus"
+    },
+
+    // =========================================================
+    // ALT + DOWN → vom Editor ins Terminal
+    // - wenn Terminal offen → fokussieren
+    // - wenn keines offen → neues Terminal öffnen
+    // =========================================================
+    {
+        "key": "alt+down",
+        "command": "workbench.action.terminal.focus",
+        "when": "editorFocus && terminalIsOpen"
+    },
+    {
+        "key": "alt+down",
+        "command": "workbench.action.terminal.toggleTerminal",
+        "when": "editorFocus && !terminalIsOpen"
+    },
+
+    // =========================================================
+    // GLOBAL: Kritische Tastenkombis deaktivieren
+    // =========================================================
+
+    {
+        "key": "ctrl+shift+w",
+        "command": "-"
+    },
+
+    {
+        "key": "ctrl+alt+right",
+        "command": "-"
+    },
+
+    //#############################################################
+    //                    NAVIGATION EDITOR-TABS
+    //#############################################################
+
+	// === VS CODE: MEHRERE ZEILEN SPRINGEN MIT CTRL + SHIFT + ALT + UP/DOWN ===
+	{
+	    "key": "ctrl+shift+alt+up",
+	    "command": "cursorMove",
+	    "args": {
+	        "to": "up",
+	        "by": "line",
+	        "value": 10
+	    }
+	},
+	{
+	    "key": "ctrl+shift+alt+down",
+	    "command": "cursorMove",
+	    "args": {
+	        "to": "down",
+	        "by": "line",
+	        "value": 10
+	    }
+	},
+
+    // =========================================================
+    // SHIFT + TAB → vorheriger Editor-Tab (links, in der Gruppe)
+    // =========================================================
+    {
+        "key": "shift+tab",
+        "command": "workbench.action.nextEditorInGroup",
+        "when": "editorFocus"
+    },
+    // Standard-Outdent (Shift+Tab) deaktivieren, damit Navigation funktioniert
+    {
+        "key": "shift+tab",
+        "command": "-editor.action.outdentLines"
+    },
+
+
+    // =========================================================
+    // MOVE LINE UP/DOWN — Standardsteuerung wiederherstellen
+    // =========================================================
+    {
+        "key": "ctrl+shift+up",
+        "command": "editor.action.moveLinesUpAction",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+shift+down",
+        "command": "editor.action.moveLinesDownAction",
+        "when": "editorTextFocus"
+    },
+
+
+	// ⚡ Zurückspringen wie ein Zeitreisender: Ctrl + F12 ⚡
+	{
+    	"key": "ctrl+f12",
+    	"command": "workbench.action.navigateBack",
+    	"when": "editorTextFocus"
+	},
+
+    // =========================================================
+    // DEAKTIVIERUNG DER DEFAULT-FUNKTION (Alt + Up / Alt + Down)
+    // =========================================================
+    {
+        "key": "alt+up",
+        "command": "-editor.action.moveLinesUpAction"
+    },
+    {
+        "key": "alt+down",
+        "command": "-editor.action.moveLinesDownAction"
+    },
+
+
+	// =========================================================
+    // CTRL + C / CTRL + V im TERMINAL
+    //  - mit Auswahl:  CTRL + C  → kopiert
+    //  - ohne Auswahl: CTRL + C  → SIGINT (^C) an Prozess
+    // =========================================================
+    {
+        "key": "ctrl+c",
+        "command": "workbench.action.terminal.copySelection",
+        "when": "terminalFocus && terminalTextSelected"
+    },
+    {
+        "key": "ctrl+c",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": { "text": "\u0003" },
+        "when": "terminalFocus && !terminalTextSelected"
+    },
+    {
+        "key": "ctrl+shift+c",
+        "command": "-workbench.action.terminal.copySelection",
+        "when": "terminalFocus"
+    },
+    {
+        "key": "ctrl+v",
+        "command": "workbench.action.terminal.paste",
+        "when": "terminalFocus"
+    },
+
+
+	// =========================================================
+	// CTRL + J im TERMINAL → vollständig deaktiviert
+	// verhindert Panel/Terminal-Einklappen
+	// =========================================================
+	{
+	    "key": "ctrl+j",
+	    "command": "-workbench.action.togglePanel",
+	},
+	{
+	    "key": "ctrl+j",
+	    "command": "-workbench.action.toggleMaximizedPanel",
+	},
+	{
+	    "key": "ctrl+j",
+	    "command": "-workbench.action.togglePanelPosition",
+	},
+
+
+    // =========================================================
+    // ALT + 1 → Editor fokussieren
+    // =========================================================
+    {
+        "key": "alt+1",
+        "command": "-workbench.action.openEditorAtIndex1"
+    },
+    {
+        "key": "alt+1",
+        "command": "workbench.action.focusActiveEditorGroup"
+    },
+
+    // =========================================================
+    // ALT + 2 → Terminal fokussieren
+    // =========================================================
+    {
+        "key": "alt+2",
+        "command": "-workbench.action.openEditorAtIndex2"
+    },
+    {
+        "key": "alt+2",
+        "command": "workbench.action.terminal.focus"
+    },
+
+    // =========================================================
+    // ALT + 3 → Explorer öffnen
+    // =========================================================
+    {
+        "key": "alt+3",
+        "command": "-workbench.action.openEditorAtIndex3"
+    },
+    {
+        "key": "alt+3",
+        "command": "workbench.view.explorer"
+    },
+
+
+    // =========================================================
+    // ALT + W → Editor / Terminal schließen (kontextabhängig)
+    // =========================================================
+
+    // falls es jemals ein Default-Command auf Alt+W gibt → deaktivieren
+    {
+        "key": "alt+w",
+        "command": "-"
+    },
+    // im Editor: aktiven Tab schließen
+    {
+        "key": "alt+w",
+        "command": "workbench.action.closeActiveEditor",
+        "when": "editorFocus"
+    },
+    // im Terminal: aktuelles Terminal killen
+    {
+        "key": "alt+w",
+        "command": "workbench.action.terminal.kill",
+        "when": "terminalFocus"
+	},
+
+
+
+
+
+    // =========================================================
+    // TERMINAL — CTRL + A → gesamte letzte Zeile markieren
+    // =========================================================
+
+	{
+    	"key": "ctrl+a",
+    	"command": "workbench.action.terminal.selectToPreviousLine",
+    	"when": "terminalFocus"
+	},
+
+
+    // --- Default-Behaviour deaktivieren ---
+	{
+        "key": "ctrl+a",
+        "command": "-selectAll"
+    },
+
+
+	// =========================================================
+    // TERMINAL — CTRL + K/U → alles hinter dem cursor löschen
+    // =========================================================
+
+	{
+		"key": "ctrl+u",
+		"command": "editor.action.deleteLines",
+		"when": "textInputFocus && !editorReadonly"
+	},
+
+	//deaktiviert ctrl + shift + k
+	{
+		"key": "ctrl+shift+k",
+		"command": "-editor.action.deleteLines",
+		"when": "textInputFocus && !editorReadonly"
+	},
+
+	{
+    	"key": "ctrl+k",
+    	"command": "workbench.action.terminal.sendSequence",
+    	"args": { "text": "\u000b" },
+    	"when": "terminalFocus"
+	},
+
+	// =========================================================
+	// alt + J → zeichenweise nach links springen
+	// =========================================================
+	{
+	    "key": "alt+j",
+	    "command": "cursorLeft",
+	    "when": "editorTextFocus"
+	},
+
+	// =========================================================
+	// ctrl + J → wortweise nach links springen
+	// =========================================================
+	{
+	    "key": "ctrl+j",
+	    "command": "cursorWordLeft",
+	    "when": "editorTextFocus"
+	},
+
+	// =========================================================
+	// alt + L → zeichenweise nach rechts springen
+	// =========================================================
+	{
+	    "key": "alt+l",
+	    "command": "cursorRight",
+	    "when": "editorTextFocus"
+	},
+
+	// =========================================================
+	// alt + L → wortweise nach rechts springen
+	// =========================================================
+	{
+	    "key": "ctrl+l",
+	    "command": "cursorWordRight",
+	    "when": "editorTextFocus"
+	},
+
+	// =========================================================
+	// alt + I → eine Zeile nach oben
+	// =========================================================
+	{
+	    "key": "alt+i",
+	    "command": "cursorUp",
+	    "when": "editorTextFocus"
+	},
+
+	// =========================================================
+	// alt + K → eine Zeile nach unten
+	// =========================================================
+	{
+	    "key": "alt+k",
+	    "command": "cursorDown",
+	    "when": "editorTextFocus"
+	}
+]
