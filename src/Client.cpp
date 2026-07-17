@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 10:11:50 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 11:50:44 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ Client::Client(int clientSocket) {
 Client::Client(const Client &other) :
 	_clientSocket(other._clientSocket), _nickname(other._nickname),
 	_username(other._username), _authenticate(other._authenticate),
-	_channel(other._channel), _buffer(other._buffer)
+	_buffer(other._buffer)
 {
 }
 
@@ -66,7 +66,6 @@ Client &Client::operator=(const Client &other) {
 	_nickname 		=	other._nickname;
 	_username 		=	other._username;
 	_authenticate 	=	other._authenticate;
-	_channel 		=	other._channel;
 	_buffer 		=	other._buffer;
   }
   return *this;

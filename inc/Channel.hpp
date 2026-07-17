@@ -13,7 +13,9 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-#include <map>
+#include <string>
+
+
 
 /*
 		struct sockaddr_in {
@@ -32,8 +34,11 @@
 class Channel {
 
 
+	private:
+		std::string		_name;
+
 	public:
-		Channel();
+		Channel(std::string& name);
 		Channel(const Channel &other);
 		Channel& operator=(const Channel &other);
 		~Channel();

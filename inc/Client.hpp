@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 09:42:45 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 11:45:17 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include <map>
 #include <string>
-#include "Channel.hpp"
 
 /*
 		struct sockaddr_in {
@@ -37,7 +36,6 @@ class Client {
 	std::string				_nickname;
 	std::string				_username;
 	bool					_authenticate;
-	std::map<int, Channel> 	_channel;
 	std::string				_buffer;
 
 	public:
