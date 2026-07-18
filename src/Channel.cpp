@@ -6,22 +6,12 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/02 01:00:16 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 11:50:15 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
-#include <arpa/inet.h> // htons()...
-#include <arpa/inet.h> // htons(), inet_ntop()
-#include <cerrno>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <fcntl.h> // fcntl(), O_NONBLOCK
-#include <poll.h>  // poll(), struct pollfd
-#include <sys/socket.h> // socket(), bind(), listen(), accept()
-#include <unistd.h>     // close()
-#include <iostream>     // close()
+#include <string>
 
 void print(std::string str);
 
@@ -29,26 +19,25 @@ void print(std::string str);
 // ────────────────── CANONICAL ──────────────────
 // ───────────────────────────────────────────────
 
-Channel::Channel() {
+
+Channel::Channel(std::string& name) : _name(name) {
 
 }
 
-Channel::Channel(const Channel &other)
-{
-	(void) other;
+
+Channel::Channel(const Channel &other) : _name(other._name) {
 
 }
 
 Channel &Channel::operator=(const Channel &other) {
 
-(void) other;
-  if (this != &other) {
+	if (this != &other) {
+		_name = other._name;
 
-  }
-  return *this;
+  	}
+  	return *this;
 }
 
 Channel::~Channel() {
-
 
 }

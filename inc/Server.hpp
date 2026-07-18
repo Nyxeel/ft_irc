@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 08:01:16 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/18 15:22:21 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 
 #include "Client.hpp"
+#include "Parser.hpp"
+#include "IrcMessage.hpp"
 
 #define SUCCESS 0
 #define ERROR 	1
@@ -53,7 +55,27 @@ class Server {
 	void					init_signals();
 	void					cleanSockets();
 	bool					_running;
-	std::map<int, Client>	_clientMap;
+
+
+	ClientMap				_clientMap;
+	Parser					_parser;
+
+
+	void					handleCommand(int fd, const IrcMessage& msg);
+	void    				handlePass(int fd, const IrcMessage& msg);
+	void    				handleNick(int fd, const IrcMessage& msg);
+	void    				handleUser(int fd, const IrcMessage& msg);
+	void    				handleJoin(int fd, const IrcMessage& msg);
+	void    				handlePrivmsg(int fd, const IrcMessage& msg);
+	void    				handlePart(int fd, const IrcMessage& msg);
+	void    				handleQuit(int fd, const IrcMessage& msg);
+	void    				handleKick(int fd, const IrcMessage& msg);
+	void    				handleInvite(int fd, const IrcMessage& msg);
+	void    				handleTopic(int fd, const IrcMessage& msg);
+	void    				handleMode(int fd, const IrcMessage& msg);
+	void					sendToClient(int fd, const std::string& msg);
+	void					sendWelcome(int fd);
+
 
 
 	public:

@@ -6,57 +6,39 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 07:20:06 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/18 14:20:58 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
-#include <arpa/inet.h> // htons()...
-#include <arpa/inet.h> // htons(), inet_ntop()
-#include <cerrno>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <fcntl.h> // fcntl(), O_NONBLOCK
-#include <poll.h>  // poll(), struct pollfd
-#include <sys/socket.h> // socket(), bind(), listen(), accept()
-#include <unistd.h>     // close()
-#include <iostream>     // close()
 #include <string>
+#include <sys/socket.h>
 
-
-void print(std::string str);
+#include <iostream>
+#include <cerrno>
+#include <string.h>
 
 // ───────────────────────────────────────────────
 // ────────────────── CANONICAL ──────────────────
 // ───────────────────────────────────────────────
 
-Client::Client() {
-
-	_clientSocket = -1;
-	_nickname = "";
-	_username = "";
-	_authenticate = false;
-	_buffer = NULL;
-
+Client::Client() :
+	_clientSocket(-1), _nickname(""), _username(""),
+	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false)
+{
 }
 
-Client::Client(int clientSocket) {
-
-	_clientSocket 	= clientSocket;
-	_nickname 		= "";
-	_username 		= "";
-	_authenticate 	= false;
-	_buffer 		= NULL;
-
+Client::Client(int clientSocket) :
+	_clientSocket(clientSocket), _nickname(""), _username(""),
+	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false)
+{
 }
 
 Client::Client(const Client &other) :
 	_clientSocket(other._clientSocket), _nickname(other._nickname),
-	_username(other._username), _authenticate(other._authenticate),
-	_channel(other._channel), _buffer(other._buffer)
+	_username(other._username), _authenticate(other._authenticate), _passOK(other._passOK),
+	_userOK(other._userOK), _nickOK(other._nickOK)
 {
-
 }
 
 Client &Client::operator=(const Client &other) {
@@ -67,16 +49,77 @@ Client &Client::operator=(const Client &other) {
 	_nickname 		=	other._nickname;
 	_username 		=	other._username;
 	_authenticate 	=	other._authenticate;
-	_channel 		=	other._channel;
-	_buffer 		=	other._buffer;
+	_passOK 		= 	other._passOK;
+  	_userOK 		= 	other._userOK;
+  	_nickOK 		= 	other._nickOK;
   }
   return *this;
 }
 
 Client::~Client() {
 
-	if (_clientSocket != -1) {
-	  close(_clientSocket);
-	  _clientSocket = -1;
-	}
 }
+
+
+// ───────────────────────────────────────────────
+// ─────────────────── GETTERS ───────────────────
+// ───────────────────────────────────────────────
+
+int	Client::getClientSocket() const {
+	return _clientSocket;
+}
+
+std::string	Client::getNickname() const		{
+	return _nickname;
+}
+
+std::string	Client::getUsername() const		{
+	return _username;
+}
+
+// ───────────────────────────────────────────────
+// ─────────────────── SETTERS ───────────────────
+// ───────────────────────────────────────────────
+
+void Client::setPassOK() {
+	_passOK = true;
+}
+
+void Client::setNickname(const std::string& nickname) {
+	_nickname = nickname;
+}
+
+void Client::setUsername(const std::string& username) {
+	_username = username;
+}
+
+void Client::setAuthenticate() {
+	_authenticate = true;
+}
+
+void Client::setNickOK() {
+	_nickOK = true;
+}
+
+void Client::setUserOK() {
+	_userOK = true;
+}
+
+bool Client::isPassOK() const {
+	return _passOK;
+}
+
+bool Client::isNickOK() const {
+	return _nickOK;
+}
+
+bool Client::isUserOK() const {
+	return _userOK;
+}
+
+bool Client::isAuthenticated() const {
+	return _passOK && _nickOK && _userOK;
+}
+
+
+
