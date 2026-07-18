@@ -6,15 +6,19 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 11:45:17 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/18 14:21:36 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLINET_HPP
-# define CLINET_HPP
+#ifndef CLIENT_HPP
+# define CLIENT_HPP
 
 #include <map>
 #include <string>
+
+#define SUCCESS 0
+#define ERROR 	1
+#define FATAL	-1
 
 /*
 		struct sockaddr_in {
@@ -35,8 +39,12 @@ class Client {
 	int						_clientSocket;
 	std::string				_nickname;
 	std::string				_username;
+
 	bool					_authenticate;
-	std::string				_buffer;
+	bool					_passOK;
+	bool					_userOK;
+	bool					_nickOK;
+
 
 	public:
 		Client();
@@ -45,11 +53,26 @@ class Client {
 		Client& operator=(const Client &other);
 		~Client();
 
-	void        appendBuffer(const std::string& data) { _buffer += data; }
-    std::string& getBuffer() { return _buffer; }
+		int					getClientSocket() const;
+		std::string			getNickname() const;
+		std::string			getUsername() const;
+
+		void				setNickname(const std::string& nickname);
+		void				setUsername(const std::string& username);
+		void				setAuthenticate();
+
+		void				setPassOK();
+		void				setNickOK();
+		void				setUserOK();
+
+		bool				isPassOK() const;
+		bool				isNickOK() const;
+		bool				isUserOK() const;
+		bool				isAuthenticated() const;
 
 
 };
 
+typedef std::map<int, Client> ClientMap;
 
 #endif

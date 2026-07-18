@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 16:33:26 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/17 08:01:10 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/17 12:14:49 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	main(int ac, char* av[]) {
 
 	if (ac != 3) {
 		print("Expected -> ./ircserv <port> <password>");
-		return 1;
+		return 0;
 	}
 	try {
 		Server server(av[1], av[2]);

@@ -9,7 +9,8 @@ OBJ_DIR		= objs
 SRCS		=	main.cpp \
 				Server.cpp \
 				Channel.cpp \
-				Client.cpp
+				Client.cpp \
+				Parser.cpp
 
 SRCS_FULL	= $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS		= $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))

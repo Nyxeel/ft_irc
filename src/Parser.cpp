@@ -50,7 +50,7 @@ void Parser::_parseSingleLine(const std::string &line, IrcMessage &msg) {
 		msg.command = token;
 
 		while (iss >> token)
-			msg.params.push_back(token);		
+			msg.params.push_back(token);
 	}
 
 	if (trailingPos != std::string::npos || (!trailingPart.empty() && s.empty()))
@@ -93,6 +93,7 @@ std::vector<IrcMessage> Parser::processBuffer(int clientFd, const std::string &r
 	return parsedMessages;
 }
 
+
 void Parser::clearClient(int clientFd) {
 	_clientBuffers.erase(clientFd);
 }
@@ -114,10 +115,10 @@ bool Parser::isValidNickname(const std::string &nick) {
 
 	if (std::isdigit(nick[0]) || nick[0] == '-') return false;
 
-	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
+	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\|`_^{}";
 	for (size_t i = 0; i < nick.length(); ++i)
 		if (allowed.find(nick[i]) == std::string::npos) return false;
-	
+
 	return true;
 }
 
@@ -126,10 +127,10 @@ bool Parser::isValidUsername(const std::string &user) {
 
 	if (std::isdigit(user[0]) || user[0] == '-') return false;
 
-	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
+	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\|`_^{}";
 	for (size_t i = 0; i < user.length(); ++i)
 		if (allowed.find(user[i]) == std::string::npos) return false;
-	
+
 	return true;
 }
 
@@ -165,6 +166,7 @@ bool Parser::ircStringCompare(const std::string &s1, const std::string &s2) {
 }
 
 bool Parser::isNicknameInUse(const std::string &nickname, const ClientMap &clients) {
+
 	ClientMap::const_iterator it;
 
 	for (it = clients.begin(); it != clients.end(); ++it)
@@ -174,12 +176,4 @@ bool Parser::isNicknameInUse(const std::string &nickname, const ClientMap &clien
 	return false;
 }
 
-bool Parser::isUsernameInUse(const std::string &username, const ClientMap &clients) {
-	ClientMap::const_iterator it;
 
-	for (it = clients.begin(); it != clients.end(); ++it)
-		if (ircStringCompare(it->second.getUsername(), username))
-			return true;
-
-	return false;
-}
