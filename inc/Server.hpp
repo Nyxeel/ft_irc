@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/18 15:22:21 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/19 17:04:41 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,11 @@
 
 #include <string>
 #include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
-#include <map>
 #include <vector>
-#include <poll.h>   // poll(), struct pollfd
-
+#include <poll.h>   		// poll(), struct pollfd
 
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "Parser.hpp"
 #include "IrcMessage.hpp"
 
@@ -28,6 +27,73 @@
 #define ERROR 	1
 #define FATAL	-1
 #define MAX_CLIENTS 1024
+
+#define CMD_PASS	"PASS"
+#define CMD_NICK	"NICK"
+#define CMD_USER	"USER"
+#define CMD_JOIN	"JOIN"
+#define CMD_PART	"PART"
+#define CMD_PRIVMSG	"PRIVMSG"
+#define CMD_QUIT	"QUIT"
+#define CMD_KICK	"KICK"
+#define CMD_INVITE	"INVITE"
+#define CMD_TOPIC	"TOPIC"
+#define CMD_MODE	"MODE"
+
+class Server {
+
+	private :
+
+		typedef std::vector<pollfd>::iterator iterator;
+
+		int						_serverSocket;
+		uint16_t 				_port;
+		std::string 			_password;
+
+		struct sockaddr_in		_addr;
+
+		void					init_signals();
+		void					cleanSockets();
+		bool					_running;
+
+		ClientMap				_clientMap;
+		Parser					_parser;
+		Channels				_channels;
+
+		void					handleCommand(int fd, const IrcMessage& msg);
+		void    				handlePass(int fd, const IrcMessage& msg);
+		void    				handleNick(int fd, const IrcMessage& msg);
+		void    				handleUser(int fd, const IrcMessage& msg);
+		void    				handleJoin(int fd, const IrcMessage& msg);
+		void    				handlePrivmsg(int fd, const IrcMessage& msg);
+		void    				handlePart(int fd, const IrcMessage& msg);
+		void    				handleQuit(int fd, const IrcMessage& msg);
+		void    				handleKick(int fd, const IrcMessage& msg);
+		void    				handleInvite(int fd, const IrcMessage& msg);
+		void    				handleTopic(int fd, const IrcMessage& msg);
+		void    				handleMode(int fd, const IrcMessage& msg);
+		void					sendToClient(int fd, const std::string& msg);
+		void					sendWelcome(int fd);
+		void					sendChannelWelcome(int fd, Channel& chan);
+		void 					broadcastJoin(int fd, Channel& chan);
+
+
+	public:
+
+		Server(std::string port, std::string password);
+		Server(const Server &other);
+		Server& operator=(const Server &other);
+		~Server();
+
+		void	setup();
+		void	stop();
+		void	run();
+
+};
+
+extern Server* g_server;
+
+#endif
 
 
 /*
@@ -43,53 +109,3 @@
 		};
 */
 
-class Server {
-
-	typedef std::vector<pollfd>::iterator iterator;
-
-	int						_serverSocket;
-	uint16_t 				_port;
-	std::string 			_password;
-	struct sockaddr_in		_addr;
-
-	void					init_signals();
-	void					cleanSockets();
-	bool					_running;
-
-
-	ClientMap				_clientMap;
-	Parser					_parser;
-
-
-	void					handleCommand(int fd, const IrcMessage& msg);
-	void    				handlePass(int fd, const IrcMessage& msg);
-	void    				handleNick(int fd, const IrcMessage& msg);
-	void    				handleUser(int fd, const IrcMessage& msg);
-	void    				handleJoin(int fd, const IrcMessage& msg);
-	void    				handlePrivmsg(int fd, const IrcMessage& msg);
-	void    				handlePart(int fd, const IrcMessage& msg);
-	void    				handleQuit(int fd, const IrcMessage& msg);
-	void    				handleKick(int fd, const IrcMessage& msg);
-	void    				handleInvite(int fd, const IrcMessage& msg);
-	void    				handleTopic(int fd, const IrcMessage& msg);
-	void    				handleMode(int fd, const IrcMessage& msg);
-	void					sendToClient(int fd, const std::string& msg);
-	void					sendWelcome(int fd);
-
-
-
-	public:
-		Server(std::string port, std::string password);
-		Server(const Server &other);
-		Server& operator=(const Server &other);
-		~Server();
-
-		void	setup();
-		void	stop();
-		void	run();
-
-};
-
-extern Server* g_server;
-
-#endif

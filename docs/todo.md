@@ -4,8 +4,8 @@
 
 ```
 [✓] Socket Setup        [✓] poll() Loop         [✓] accept() / disconnect
-[ ] Buffer Handling     [ ] Send Functions      [ ] Command Parser
-[ ] Auth Commands       [ ] Channel Commands    [ ] Operator Commands
+[✓] Buffer Handling     [ ] Send Functions      [ ] Command Parser
+[✓] Auth Commands       [ ] Channel Commands    [ ] Operator Commands
 ```
 
 ---
