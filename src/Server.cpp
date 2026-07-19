@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/19 20:01:44 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 00:36:52 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,7 +361,7 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 	if (_clientMap[fd].isAuthenticated()) {
 
 		// 	TODO: inform all other clients in channel about nickchange
-		//	sendtoAllClients in channel
+		//	broadcastNickChange in all active channel
 		// 	format :oldnick!user@host NICK :newnick
 
 		sendToClient(fd, ":" + _clientMap[fd].getNickname() + "!" + _clientMap[fd].getUsername() + "@host NICK :" + msg.params[0] + "\r\n");
@@ -377,6 +377,24 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 }
 
 void	Server::handleUser(int fd, const IrcMessage& msg) {
+
+	//  Regel:
+		// Ein ":" vor dem letzten IRC-Parameter bedeutet:
+		// Alles danach gehört zu einem einzigen Parameter, auch wenn Leerzeichen enthalten sind.
+		//
+		// Ohne Leerzeichen:
+		// USER patrick 0 * Patrick
+		//
+		// Ergebnis:
+		// params[3] = "Patrick"
+		//
+		// Mit Leerzeichen:
+		// USER patrick 0 * :Patrick Jelinek
+		//
+		// Ergebnis:
+		// params[3] = "Patrick Jelinek"
+		//
+		// Der Doppelpunkt ":" wird nicht mitgespeichert.
 
 	if (_clientMap[fd].isAuthenticated() || _clientMap[fd].isUserOK()) {
     	sendToClient(fd, ":ircserv " + std::string(ERR_ALREADYREGISTERED) +
