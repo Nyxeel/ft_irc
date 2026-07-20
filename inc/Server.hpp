@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/19 17:04:41 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 11:12:25 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,11 @@ class Server {
 		void					sendToClient(int fd, const std::string& msg);
 		void					sendWelcome(int fd);
 		void					sendChannelWelcome(int fd, Channel& chan);
-		void 					broadcastJoin(int fd, Channel& chan);
+		void 					broadcastToChannel(int fd, Channel& chan, const std::string& message);
+
+		bool					getChannel();
+
+		//isActiveClient()
 
 
 	public:

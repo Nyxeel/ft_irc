@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 00:36:52 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 11:16:18 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,7 +274,7 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 	else if (msg.command == CMD_JOIN)
 		handleJoin(fd, msg);
 	else if (msg.command == CMD_PRIVMSG)
-		; // handlePrivmsg(fd, msg);
+		handlePrivmsg(fd, msg);
 	else if (msg.command == CMD_KICK)
 		; // handleKick(fd, msg);
 	else if (msg.command == CMD_INVITE)
@@ -501,7 +501,11 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			chan.addUser(fd);
 			_clientMap[fd].addChannel(channels[i]);
 			sendChannelWelcome(fd, chan);
-			broadcastJoin(fd, chan);
+
+			Client& client = _clientMap[fd];
+			const std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@"
+					+ client.getHostAdresse() + " JOIN " + chan.getName() + "\r\n";
+			broadcastToChannel(fd, chan, message);
 		}
 
     }
@@ -547,14 +551,10 @@ void	Server::sendChannelWelcome(int fd, Channel& channel) {
 
 }
 
-void 	Server::broadcastJoin(int fd, Channel& channel) {
+void 	Server::broadcastToChannel(int fd, Channel& channel, const std::string& message) {
 
 	std::set<int> users = channel.getUsers();
 	std::set<int>::iterator it = users.begin();
-	Client& client = _clientMap[fd];
-
-	std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@"
-						+ client.getHostAdresse() + " JOIN " + channel.getName() + "\r\n";
 
 	for(; it != users.end(); it++) {
 
@@ -564,8 +564,47 @@ void 	Server::broadcastJoin(int fd, Channel& channel) {
 	}
 }
 
+void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
+
+	if (msg.params.size() < 2) {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+			+ _clientMap[fd].getNickname() + " PRIVMSG :Not enough parameters\r\n");
+        return;
+	}
+
+
+	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
+	Channel& chan = _channels[msg.params[0]];
+
+	// Is parmas[0] a channel ??
+	if (it != _channels.end()) {
+
+		// is client member of the channel ??
+		if (chan.isMember(fd)) {
+
+			const std::string& message = msg.params[1]; //TODO: PARSER muss : bei params[1] erkennen und danach alles in inklcusive leerzeichen in params[1] speicher als string
+			broadcastToChannel(fd, chan, message);
+		}
+		// member not found
+		else {
+			sendToClient(fd, ":ircserv " + std::string(ERR_CANNOTSENDTOCHAN)
+			+ " " + chan.getName() + " :Cannot send to channel\r\n");
+		}
+		return;
+	}
+	// an client privat senden
+	//if(isRegisteredClient())
+
+
+}
+
 
 // ───────────────────────────────────────────────
 // ──────────────── OPERATOR COMMANDS ────────────
 // ───────────────────────────────────────────────
 // handleKick, handleInvite, handleTopic, handleMode
+
+// ───────────────────────────────────────────────
+// ─────────────────── GETTERS ───────────────────
+// ───────────────────────────────────────────────
+
