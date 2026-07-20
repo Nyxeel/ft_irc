@@ -221,7 +221,7 @@ void Server::run() {
 				// Ereignis auf CLIENT
 				//reciv() and send()
 
-				char buffer[4096];
+				char buffer[4];
   				memset(buffer, 0, sizeof(buffer));
   				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
 				if (bytesReceived <= 0) {
@@ -607,7 +607,7 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 
 			const std::string message = (":" + client.getNickname() + "!"
 					+ client.getUsername() + "@" + client.getHostAdresse()
-					+ " PRIVMSG " + msg.params[0] + " :" + msg.params[1] + "\r\n");
+					+ " PRIVMSG " + client.getNickname() + " :" + msg.params[1] + "\r\n");
 
 			sendToClient(iter->first, message);
 			return ;

@@ -121,7 +121,7 @@ bool Parser::isValidNickname(const std::string &nick) {
 }
 
 bool Parser::isValidUsername(const std::string &user) {
-	if (user.empty() || user.length() > 9) return false;
+	if (user.empty() || user.length() > 9) return false; // TODO lenght anpassen falls notwendig
 
 	if (std::isdigit(user[0]) || user[0] == '-') return false;
 
