@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <iostream>
 #include <cctype>
 
 //(de)constructor
@@ -104,7 +103,7 @@ std::vector<std::string> Parser::splitByComma(const std::string &str) {
 	std::string token;
 
 	while (std::getline(ss, token, ',')) {
-		tokens.push_back(token); // TODO isempty() entfernt wegen #channel - key in JOIN. sonst noch woanders verwendet ?? 
+		tokens.push_back(token); // TODO isempty() entfernt wegen #channel - key in JOIN. sonst noch woanders verwendet ??
 	}
 	return tokens;
 }

@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 11:16:18 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 12:56:58 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,15 +334,19 @@ void	Server::handlePass(int fd, const IrcMessage& msg) {
 
 void	Server::handleNick(int fd, const IrcMessage& msg) {
 
-	std::string target = _clientMap[fd].isNickOK() ? _clientMap[fd].getNickname() : "*";
+	Client& client = _clientMap[fd];
+	std::string target = client.isNickOK() ? client.getNickname() : "*";
+
 	if (msg.params.empty()) {
 
 		sendToClient(fd, ":ircserv " + std::string(ERR_NONICKNAMEGIVEN) + " "
 			+ target  + " :No nickname given\r\n");
 		return ;
 	}
-	else if (_clientMap[fd].isNickOK() && msg.params[0] == _clientMap[fd].getNickname()) //eigener nick kein fehler
+
+	else if (client.isNickOK() && msg.params[0] == client.getNickname()) //eigener nick kein fehler
     	return;
+
 	else if (!_parser.isValidNickname(msg.params[0])) {
 
 		sendToClient(fd, ":ircserv " + std::string(ERR_ERRONEUSNICKNAME) + " "
@@ -350,28 +354,29 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 		return ;
 
 	}
-	else if (_parser.isNicknameInUse(msg.params[0], _clientMap)) {
 
+	else if (_parser.isNicknameInUse(msg.params[0], _clientMap)) {
+		//TODO nicknames sind cases insesitive!!
 		sendToClient(fd, ":ircserv " + std::string(ERR_NICKNAMEINUSE) + " "
 			+ target  + " " + msg.params[0] + " :Nickname is already in use\r\n");
 		return ;
 	}
 
-
-	if (_clientMap[fd].isAuthenticated()) {
+	
+	if (client.isAuthenticated()) {
 
 		// 	TODO: inform all other clients in channel about nickchange
 		//	broadcastNickChange in all active channel
 		// 	format :oldnick!user@host NICK :newnick
 
-		sendToClient(fd, ":" + _clientMap[fd].getNickname() + "!" + _clientMap[fd].getUsername() + "@host NICK :" + msg.params[0] + "\r\n");
-		_clientMap[fd].setNickname(msg.params[0]);
+		sendToClient(fd, ":" + client.getNickname() + "!" + client.getUsername() + "@host NICK :" + msg.params[0] + "\r\n");
+		client.setNickname(msg.params[0]);
 		return ;
 	}
-	_clientMap[fd].setNickname(msg.params[0]);
-	_clientMap[fd].setNickOK();
+	client.setNickname(msg.params[0]);
+	client.setNickOK();
 
-	if (_clientMap[fd].isPassOK() && _clientMap[fd].isNickOK() && _clientMap[fd].isUserOK() )
+	if (client.isPassOK() && client.isNickOK() && client.isUserOK() )
 		sendWelcome(fd);
 
 }
@@ -379,22 +384,16 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 void	Server::handleUser(int fd, const IrcMessage& msg) {
 
 	//  Regel:
-		// Ein ":" vor dem letzten IRC-Parameter bedeutet:
-		// Alles danach gehört zu einem einzigen Parameter, auch wenn Leerzeichen enthalten sind.
-		//
-		// Ohne Leerzeichen:
-		// USER patrick 0 * Patrick
-		//
-		// Ergebnis:
-		// params[3] = "Patrick"
-		//
-		// Mit Leerzeichen:
-		// USER patrick 0 * :Patrick Jelinek
-		//
-		// Ergebnis:
-		// params[3] = "Patrick Jelinek"
-		//
-		// Der Doppelpunkt ":" wird nicht mitgespeichert.
+	// https://modern.ircdocs.horse/#parameters
+	//TODO: PARSER muss erkennen ob ein param mit  ":" beginnt.
+	// Pflicht nur wenn der Wert Leerzeichen enthält, leer ist, oder selbst mit ":" beginnt.
+	// Fehlt der ":", wird ganz normal am Leerzeichen weitergesplittet (siehe Beispiel unten).
+	// USER patrick 0 * :Patrick Jelinek
+	//
+	// Ergebnis:
+	// params[3] = "Patrick Jelinek"
+	//
+	// Der Doppelpunkt ":" wird nicht mitgespeichert.
 
 	if (_clientMap[fd].isAuthenticated() || _clientMap[fd].isUserOK()) {
     	sendToClient(fd, ":ircserv " + std::string(ERR_ALREADYREGISTERED) +
@@ -572,17 +571,23 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
         return;
 	}
 
+	//TODO: PARSER muss : bei params[1] erkennen und danach alles in inklcusive leerzeichen in params[1] speicher als string
+	// https://modern.ircdocs.horse/#parameters
 
 	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
-	Channel& chan = _channels[msg.params[0]];
+	Client& client = _clientMap[fd];
 
 	// Is parmas[0] a channel ??
 	if (it != _channels.end()) {
 
+		Channel& chan = it->second;
 		// is client member of the channel ??
 		if (chan.isMember(fd)) {
 
-			const std::string& message = msg.params[1]; //TODO: PARSER muss : bei params[1] erkennen und danach alles in inklcusive leerzeichen in params[1] speicher als string
+			const std::string message = (":" + client.getNickname() + "!"
+					+ client.getUsername() + "@" + client.getHostAdresse()
+					+ " PRIVMSG " + chan.getName() + " :" + msg.params[1] + "\r\n");
+
 			broadcastToChannel(fd, chan, message);
 		}
 		// member not found
@@ -592,9 +597,26 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 		}
 		return;
 	}
-	// an client privat senden
-	//if(isRegisteredClient())
 
+	// an client privat senden
+	ClientMap::iterator iter = _clientMap.begin();
+	for(; iter != _clientMap.end(); iter++) {
+
+
+		if (iter->second.getNickname() == msg.params[0] && iter->second.isAuthenticated()) {
+
+			const std::string message = (":" + client.getNickname() + "!"
+					+ client.getUsername() + "@" + client.getHostAdresse()
+					+ " PRIVMSG " + msg.params[0] + " :" + msg.params[1] + "\r\n");
+
+			sendToClient(iter->first, message);
+			return ;
+		}
+	}
+
+	//channelname oder username not found
+	sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK)
+			+ " " + msg.params[0] + " :No such nick/channel\r\n");
 
 }
 
@@ -604,7 +626,4 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 // ───────────────────────────────────────────────
 // handleKick, handleInvite, handleTopic, handleMode
 
-// ───────────────────────────────────────────────
-// ─────────────────── GETTERS ───────────────────
-// ───────────────────────────────────────────────
 
