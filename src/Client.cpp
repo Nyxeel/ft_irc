@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/19 19:49:02 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:26:57 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ void	Client::addChannel(const std::string& name) {
 
 void 	Client::removeChannel(const std::string& name) {
 
-	
 	_joinedChannels.erase(name);
 }
 

@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 12:56:58 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 17:25:11 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,7 +276,7 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 	else if (msg.command == CMD_PRIVMSG)
 		handlePrivmsg(fd, msg);
 	else if (msg.command == CMD_KICK)
-		; // handleKick(fd, msg);
+		handleKick(fd, msg);
 	else if (msg.command == CMD_INVITE)
 		; // handleInvite(fd, msg);
 	else if (msg.command == CMD_TOPIC)
@@ -362,7 +362,7 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 		return ;
 	}
 
-	
+
 	if (client.isAuthenticated()) {
 
 		// 	TODO: inform all other clients in channel about nickchange
@@ -382,18 +382,6 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 }
 
 void	Server::handleUser(int fd, const IrcMessage& msg) {
-
-	//  Regel:
-	// https://modern.ircdocs.horse/#parameters
-	//TODO: PARSER muss erkennen ob ein param mit  ":" beginnt.
-	// Pflicht nur wenn der Wert Leerzeichen enthält, leer ist, oder selbst mit ":" beginnt.
-	// Fehlt der ":", wird ganz normal am Leerzeichen weitergesplittet (siehe Beispiel unten).
-	// USER patrick 0 * :Patrick Jelinek
-	//
-	// Ergebnis:
-	// params[3] = "Patrick Jelinek"
-	//
-	// Der Doppelpunkt ":" wird nicht mitgespeichert.
 
 	if (_clientMap[fd].isAuthenticated() || _clientMap[fd].isUserOK()) {
     	sendToClient(fd, ":ircserv " + std::string(ERR_ALREADYREGISTERED) +
@@ -427,8 +415,7 @@ void	Server::sendWelcome(int fd) {
 // ───────────────────────────────────────────────
 // ──────────────── CHANNEL COMMANDS ─────────────
 // ───────────────────────────────────────────────
-// handleJoin, handlePart, handlePrivmsg, handleQuit
-
+// handleJoin,  handlePrivmsg
 
 void Server::handleJoin(int fd, const IrcMessage& msg) {
     if (msg.params.empty()) {
@@ -489,7 +476,6 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			}
 
 			// passwort protected channels
-
 			else if (!chan.getKey().empty() && key != chan.getKey()) {
 
 				sendToClient(fd, ":ircserv " + std::string(ERR_BADCHANNELKEY) + " "
@@ -503,7 +489,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 
 			Client& client = _clientMap[fd];
 			const std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@"
-					+ client.getHostAdresse() + " JOIN " + chan.getName() + "\r\n";
+				+ client.getHostAdresse() + " JOIN " + chan.getName() + "\r\n";
 			broadcastToChannel(fd, chan, message);
 		}
 
@@ -571,9 +557,9 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
         return;
 	}
 
-	//TODO: PARSER muss : bei params[1] erkennen und danach alles in inklcusive leerzeichen in params[1] speicher als string
-	// https://modern.ircdocs.horse/#parameters
 
+	// TODO multi channel kick ???
+	// KICK #chan1,#chan2,#chan3 user1,user2,user3
 	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
 	Client& client = _clientMap[fd];
 
@@ -602,7 +588,6 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 	ClientMap::iterator iter = _clientMap.begin();
 	for(; iter != _clientMap.end(); iter++) {
 
-
 		if (iter->second.getNickname() == msg.params[0] && iter->second.isAuthenticated()) {
 
 			const std::string message = (":" + client.getNickname() + "!"
@@ -620,10 +605,87 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 
 }
 
-
+// TODO muss channel auch & handlen zb &channel statt #channel??
 // ───────────────────────────────────────────────
 // ──────────────── OPERATOR COMMANDS ────────────
 // ───────────────────────────────────────────────
 // handleKick, handleInvite, handleTopic, handleMode
+
+void	Server::handleKick(int fd, const IrcMessage& msg) {
+
+	Client& client = _clientMap[fd];
+
+	if (msg.params.size() < 2) {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+			+ client.getNickname() + " KICK :Not enough parameters\r\n");
+        return;
+	}
+
+	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
+
+	// Channel found?? else -> ERR_NOSUCHCHANNEL
+	if (it != _channels.end()) {
+
+		if (!it->second.isOperator(fd)) {
+			sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
+				+ client.getNickname() + " " + msg.params[0]
+				+ " :You're not channel operator\r\n");
+        	return;
+		}
+	}
+	else {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHCHANNEL) + " "
+			+ client.getNickname() + " " + msg.params[0]
+			+ " :No such channel\r\n");
+        return;
+	}
+
+	Channel& channel = it->second;
+	std::vector<std::string> users = _parser.splitByComma(msg.params[1]);
+
+	for (size_t i = 0; i < users.size(); i++) {
+
+
+		// check is user existing ??
+		int userFd;
+		if ((userFd = getFdByNickname(users[i])) == FATAL) {
+
+			sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK) + " "
+				+ client.getNickname() + " " + users[i]
+				+ " :No such nick/channel\r\n");
+			continue ;
+		}
+
+		// check is user channel member??
+		if (!channel.isMember(userFd)) {
+			sendToClient(fd, ":ircserv " + std::string(ERR_USERNOTINCHANNEL) + " "
+				+ client.getNickname() + " " + users[i] + " " + channel.getName()
+				+ " :They aren't on that channel\r\n");
+			continue ;
+		}
+
+		std::string comment = (msg.params.size() > 2) ? msg.params[2] : users[i];
+		const std::string message = (":" + client.getNickname() + "!"
+				+ client.getUsername() + "@" + client.getHostAdresse()
+				+ " KICK " + channel.getName() + " " + users[i] + " :" + comment + "\r\n");
+
+		broadcastToChannel(fd, channel, message);
+		channel.removeUser(userFd);
+		_clientMap[userFd].removeChannel(msg.params[0]);
+	}
+}
+
+int	Server::getFdByNickname(std::string name) const {
+
+	ClientMap::const_iterator it = _clientMap.begin();
+
+	for (; it != _clientMap.end(); it++) {
+
+		if (it->second.getNickname() == name)
+			return (it->first);
+	}
+
+	return (-1);
+}
 
 

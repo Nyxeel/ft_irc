@@ -50,8 +50,8 @@ class Channel {
 		bool			getInviteOnly() const;
 		bool			getTopicProtection() const;
 		size_t			getUserLimit() const;
-		std::set<int>	getUsers() const;
-		std::set<int>	getOperators() const;
+		const std::set<int>&	getUsers() const;
+		const std::set<int>&	getOperators() const;
 
 
 		void			setTopic(std::string& topic);

@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/19 19:52:25 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:05:47 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,12 +102,12 @@ size_t	Channel::getUserLimit() const {
 	return (_userLimit);
 }
 
-std::set<int>	Channel::getUsers() const{
+const std::set<int>&	Channel::getUsers() const {
 
 	return (_users);
 }
 
-std::set<int>	Channel::getOperators() const {
+const std::set<int>&	Channel::getOperators() const {
 
 	return (_operators);
 }

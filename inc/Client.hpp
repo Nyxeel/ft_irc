@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/19 19:46:32 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:28:14 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #define ERROR 	1
 #define FATAL	-1
 #define INET_ADDRSTRLEN 16
+
+
 
 class Client {
 
@@ -41,6 +43,7 @@ class Client {
 		Client();
 		Client(int clientSocket);
 		~Client();
+
 
 		int						getClientSocket() const;
 		std::string				getNickname() const;
@@ -69,5 +72,6 @@ class Client {
 };
 
 typedef std::map<int, Client> ClientMap;
+
 
 #endif
