@@ -14,36 +14,54 @@
 # define CHANNEL_HPP
 
 #include <string>
-
-
-
-/*
-		struct sockaddr_in {
-		    sa_family_t    sin_family;   // Adressfamilie
-		    in_port_t      sin_port;     // Port (Network Byte Order)
-		    struct in_addr sin_addr;     // IPv4-Adresse
-		    char           sin_zero[8];  // Padding (ungenutzt)
-		};
-
-		struct in_addr {
-		    uint32_t s_addr;             // IPv4 als 32-Bit Zahl
-		};
-*/
-
+#include <map>
+#include <set>
 
 class Channel {
 
-
 	private:
+
 		std::string		_name;
+		std::string		_topic;
+		std::string		_key;				// k
+		bool			_inviteOnly;		// i
+		bool			_topicProtection;	// t
+		size_t			_userLimit;			// l
+
+		std::set<int>	_users;
+		std::set<int> 	_operators;
 
 	public:
+
+		Channel();
 		Channel(std::string& name);
-		Channel(const Channel &other);
-		Channel& operator=(const Channel &other);
 		~Channel();
+
+		void			addUser(int fd);
+		void			addOperator(int fd);
+		void			removeUser(int fd);
+		bool			isMember(int fd);
+		bool			isOperator(int fd);
+
+
+		std::string		getName() const;
+		std::string		getTopic() const;
+		std::string		getKey() const;
+		bool			getInviteOnly() const;
+		bool			getTopicProtection() const;
+		size_t			getUserLimit() const;
+		const std::set<int>&	getUsers() const;
+		const std::set<int>&	getOperators() const;
+
+
+		void			setTopic(std::string& topic);
+		void			setKey(std::string& password);
+		void			setInviteOnly(bool inviteOnly);
+		void			setTopicProtection(bool topicProtection);
+		void			setUserLimit(size_t userLimit);
 
 };
 
+typedef std::map<std::string, Channel> Channels;
 
 #endif

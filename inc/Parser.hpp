@@ -31,7 +31,6 @@ class Parser {
 		static bool 				isValidChannelName(const std::string &channel);
 		static bool 				ircStringCompare(const std::string &s1, const std::string &s2);
 		static bool 				isNicknameInUse(const std::string &nickname, const ClientMap &clients);
-		static bool 				isUsernameInUse(const std::string &username, const ClientMap &clients);
 };
 
 #endif

@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <iostream>
 #include <cctype>
 
 //(de)constructor
@@ -104,14 +103,13 @@ std::vector<std::string> Parser::splitByComma(const std::string &str) {
 	std::string token;
 
 	while (std::getline(ss, token, ',')) {
-		if (!token.empty())
-			tokens.push_back(token);
+		tokens.push_back(token); // TODO isempty() entfernt wegen #channel - key in JOIN. sonst noch woanders verwendet ??
 	}
 	return tokens;
 }
 
 bool Parser::isValidNickname(const std::string &nick) {
-	if (nick.empty() || nick.length() > 9) return false;
+	if (nick.empty()) return false;
 
 	if (std::isdigit(nick[0]) || nick[0] == '-') return false;
 
@@ -123,7 +121,7 @@ bool Parser::isValidNickname(const std::string &nick) {
 }
 
 bool Parser::isValidUsername(const std::string &user) {
-	if (user.empty() || user.length() > 9) return false;
+	if (user.empty() || user.length() > 9) return false; // TODO lenght anpassen falls notwendig
 
 	if (std::isdigit(user[0]) || user[0] == '-') return false;
 
@@ -135,7 +133,7 @@ bool Parser::isValidUsername(const std::string &user) {
 }
 
 bool Parser::isValidChannelName(const std::string &channel) {
-	if (channel.empty() || channel.length() > 50) return false;
+	if (channel.empty() || channel.length() < 2 || channel.length() > 50) return false;
 
 	if (channel[0] != '#' && channel[0] != '&') return false;
 
@@ -175,5 +173,3 @@ bool Parser::isNicknameInUse(const std::string &nickname, const ClientMap &clien
 
 	return false;
 }
-
-

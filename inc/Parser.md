@@ -118,7 +118,7 @@ void handleJoinCommand(int fd, const IrcMessage& msg) {
         return;
     }
 
-    // Splittet "chan1,chan2" automatisch in einen std::vector<std::string>
+    // Splittet "chan1,chan2 pw1,pw2" automatisch in einen std::vector<std::string>
     std::vector<std::string> channels = Parser::splitByComma(msg.params[0]);
 
     for (size_t i = 0; i < channels.size(); ++i) {

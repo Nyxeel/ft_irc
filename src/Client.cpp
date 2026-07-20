@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/18 14:20:58 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 16:26:57 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 #include <string>
 #include <sys/socket.h>
 
-#include <iostream>
-#include <cerrno>
-#include <string.h>
+#include <string>
 
 // ───────────────────────────────────────────────
 // ────────────────── CANONICAL ──────────────────
@@ -32,28 +30,6 @@ Client::Client(int clientSocket) :
 	_clientSocket(clientSocket), _nickname(""), _username(""),
 	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false)
 {
-}
-
-Client::Client(const Client &other) :
-	_clientSocket(other._clientSocket), _nickname(other._nickname),
-	_username(other._username), _authenticate(other._authenticate), _passOK(other._passOK),
-	_userOK(other._userOK), _nickOK(other._nickOK)
-{
-}
-
-Client &Client::operator=(const Client &other) {
-
-  if (this != &other) {
-
-	_clientSocket 	=	other._clientSocket;
-	_nickname 		=	other._nickname;
-	_username 		=	other._username;
-	_authenticate 	=	other._authenticate;
-	_passOK 		= 	other._passOK;
-  	_userOK 		= 	other._userOK;
-  	_nickOK 		= 	other._nickOK;
-  }
-  return *this;
 }
 
 Client::~Client() {
@@ -75,6 +51,11 @@ std::string	Client::getNickname() const		{
 
 std::string	Client::getUsername() const		{
 	return _username;
+}
+
+std::string	Client::getHostAdresse() const {
+
+	return _ip ;
 }
 
 // ───────────────────────────────────────────────
@@ -117,8 +98,23 @@ bool Client::isUserOK() const {
 	return _userOK;
 }
 
+void	Client::setHostAdresse(char ip[INET_ADDRSTRLEN]) {
+
+	_ip = ip;
+}
+
 bool Client::isAuthenticated() const {
 	return _passOK && _nickOK && _userOK;
+}
+
+void	Client::addChannel(const std::string& name) {
+
+	_joinedChannels.insert(name);
+}
+
+void 	Client::removeChannel(const std::string& name) {
+
+	_joinedChannels.erase(name);
 }
 
 
