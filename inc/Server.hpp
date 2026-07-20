@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 16:39:35 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:26:40 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,14 @@ class Server {
 		void    				handleTopic(int fd, const IrcMessage& msg);
 		void    				handleMode(int fd, const IrcMessage& msg);
 		void					sendToClient(int fd, const std::string& msg);
+
 		void					sendWelcome(int fd);
 		void					sendChannelWelcome(int fd, Channel& chan);
+
 		void 					broadcastToChannel(int fd, Channel& chan, const std::string& message);
+		void					broadcastQuit(int fd);
+
 		int						getFdByNickname(std::string name) const;
-
-		bool					getChannel();
-
-		//isActiveClient()
 
 
 	public:

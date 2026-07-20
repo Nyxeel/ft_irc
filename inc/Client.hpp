@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 16:28:14 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:39:39 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ class Client {
 		Client();
 		Client(int clientSocket);
 		~Client();
-
 
 		int						getClientSocket() const;
 		std::string				getNickname() const;

@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 17:44:19 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 18:46:53 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <poll.h>   // poll(), struct pollfd
 #include <signal.h>
 #include <stdexcept>
+#include <string>
 #include <sys/socket.h> // socket(), bind(), listen(), accept()
 #include <unistd.h>     // close()
 #include <vector>
@@ -231,9 +232,12 @@ void Server::run() {
 					else
 						std::cerr << "recv failed: " << strerror(errno) << std::endl;
 
-					close(socket->fd);           		// Server schließt FD
+					broadcastQuit(socket->fd);			// sends quit message to all joined channels
 					_clientMap.erase(socket->fd);  		// Client destructor wird gecalled und closed _clientfd
 					_parser.clearClient(socket->fd);	// loescht den eintrag in der map fuer IRCMessage
+					close(socket->fd);           		// Server schließt FD
+
+
 					socket = fds.erase(socket);
 					socket--;              				// Schleife macht danach socket++, das gleicht das aus
 					continue;
@@ -251,10 +255,6 @@ void Server::run() {
     		fds.push_back(addClients[i]);
 	}
 }
-
-// ───────────────────────────────────────────────
-// ──────────────── SEND / REPLY ─────────────────
-// ───────────────────────────────────────────────
 
 void Server::handleCommand(int fd, const IrcMessage& msg) {
 
@@ -288,6 +288,11 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 			+ _clientMap[fd].getNickname() + " " + msg.command + " :Unknown command\r\n");
 }
 
+// ───────────────────────────────────────────────
+// ──────────────── SEND / BROADCAST ─────────────
+// ───────────────────────────────────────────────
+// sendToClient, sendWelcome, sendChannelWelcome, broadcastToChannel
+
 void	Server::sendToClient(int fd, const std::string& msg) {
 
 
@@ -306,6 +311,87 @@ void	Server::sendToClient(int fd, const std::string& msg) {
 		totalSent += bytesSent;
 	}
 }
+
+void	Server::sendWelcome(int fd) {
+
+		_clientMap[fd].setAuthenticate(); // Authenticate Client!
+		std::string nick = _clientMap[fd].getNickname();
+		std::string user = _clientMap[fd].getUsername();
+    	sendToClient(fd, ":ircserv " + std::string(RPL_WELCOME) + " " + nick +
+			" :Welcome to the IRC Network " + nick + "!" + user + "@" + _clientMap[fd].getHostAdresse() + "\r\n");
+
+}
+
+void	Server::sendChannelWelcome(int fd, Channel& channel) {
+
+	Client& client = _clientMap[fd];
+
+	// Join echo
+	sendToClient(fd, ":" + client.getNickname() + "!" + client.getUsername() + "@"
+					+ client.getHostAdresse() + " JOIN " + channel.getName() + "\r\n");
+
+	//Topic
+	if (channel.getTopic().empty())
+		sendToClient(fd, ":ircserv " + std::string(RPL_NOTOPIC) + " " + client.getNickname() + " "
+			+ channel.getName() + " :No topic is set\r\n");
+	else
+	 	sendToClient(fd, ":ircserv " + std::string(RPL_TOPIC) + " " + client.getNickname() + " "
+			+ channel.getName() + " :" + channel.getTopic() + "\r\n");
+
+	// Channel members
+	std::string userList;
+	std::set<int> users = channel.getUsers();
+	std::set<int>::iterator it = users.begin();
+
+	for (; it != users.end(); it++) {
+
+		if (channel.isOperator(*it))
+			userList += "@";
+
+		userList += _clientMap[*it].getNickname();
+
+		std::set<int>::iterator next = it;
+		++next;
+		if (next != users.end())
+			userList += " ";
+	}
+	sendToClient(fd, ":ircserv " + std::string(RPL_NAMREPLY) + " " + client.getNickname() + " = "
+			+ channel.getName() + " :" + userList + "\r\n");
+	sendToClient(fd, ":ircserv " + std::string(RPL_ENDOFNAMES) + " " + client.getNickname() + " "
+			+ channel.getName() + " :End of /NAMES list\r\n");
+
+}
+
+void 	Server::broadcastToChannel(int fd, Channel& channel, const std::string& message) {
+
+	std::set<int> users = channel.getUsers();
+	std::set<int>::iterator it = users.begin();
+
+	for(; it != users.end(); it++) {
+
+		if (fd == *it)
+			continue ;
+		sendToClient(*it, message);
+	}
+}
+
+void 	Server::broadcastQuit(int fd) {
+
+	Client& client = _clientMap[fd];
+	std::set<std::string> clientChannels = client.getJoinedChannels();
+	std::set<std::string>::iterator it = clientChannels.begin();
+
+	const std::string message = ":" + client.getNickname() + "!"
+			+ client.getUsername() + "@" + client.getHostAdresse()
+			+ " QUIT :Client Quit\r\n";
+
+	for(; it != clientChannels.end(); it++) {
+
+		Channel& chan = _channels[*it];
+		broadcastToChannel(fd, chan, message);
+	}
+}
+
 
 // ───────────────────────────────────────────────
 // ──────────────── REGISTRATION ─────────────────
@@ -402,16 +488,6 @@ void	Server::handleUser(int fd, const IrcMessage& msg) {
 		sendWelcome(fd);
 }
 
-void	Server::sendWelcome(int fd) {
-
-		_clientMap[fd].setAuthenticate(); // Authenticate Client!
-		std::string nick = _clientMap[fd].getNickname();
-		std::string user = _clientMap[fd].getUsername();
-    	sendToClient(fd, ":ircserv " + std::string(RPL_WELCOME) + " " + nick +
-			" :Welcome to the IRC Network " + nick + "!" + user + "@" + _clientMap[fd].getHostAdresse() + "\r\n");
-
-}
-
 // ───────────────────────────────────────────────
 // ──────────────── CHANNEL COMMANDS ─────────────
 // ───────────────────────────────────────────────
@@ -494,59 +570,6 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 		}
 
     }
-}
-
-void	Server::sendChannelWelcome(int fd, Channel& channel) {
-
-	Client& client = _clientMap[fd];
-
-	// Join echo
-	sendToClient(fd, ":" + client.getNickname() + "!" + client.getUsername() + "@"
-					+ client.getHostAdresse() + " JOIN " + channel.getName() + "\r\n");
-
-	//Topic
-	if (channel.getTopic().empty())
-		sendToClient(fd, ":ircserv " + std::string(RPL_NOTOPIC) + " " + client.getNickname() + " "
-			+ channel.getName() + " :No topic is set\r\n");
-	else
-	 	sendToClient(fd, ":ircserv " + std::string(RPL_TOPIC) + " " + client.getNickname() + " "
-			+ channel.getName() + " :" + channel.getTopic() + "\r\n");
-
-	// Channel members
-	std::string userList;
-	std::set<int> users = channel.getUsers();
-	std::set<int>::iterator it = users.begin();
-
-	for (; it != users.end(); it++) {
-
-		if (channel.isOperator(*it))
-			userList += "@";
-
-		userList += _clientMap[*it].getNickname();
-
-		std::set<int>::iterator next = it;
-		++next;
-		if (next != users.end())
-			userList += " ";
-	}
-	sendToClient(fd, ":ircserv " + std::string(RPL_NAMREPLY) + " " + client.getNickname() + " = "
-			+ channel.getName() + " :" + userList + "\r\n");
-	sendToClient(fd, ":ircserv " + std::string(RPL_ENDOFNAMES) + " " + client.getNickname() + " "
-			+ channel.getName() + " :End of /NAMES list\r\n");
-
-}
-
-void 	Server::broadcastToChannel(int fd, Channel& channel, const std::string& message) {
-
-	std::set<int> users = channel.getUsers();
-	std::set<int>::iterator it = users.begin();
-
-	for(; it != users.end(); it++) {
-
-		if (fd == *it)
-			continue ;
-		sendToClient(*it, message);
-	}
 }
 
 void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
