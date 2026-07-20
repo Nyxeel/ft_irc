@@ -173,5 +173,3 @@ bool Parser::isNicknameInUse(const std::string &nickname, const ClientMap &clien
 
 	return false;
 }
-
-
