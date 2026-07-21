@@ -6,13 +6,14 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/21 09:07:40 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/21 12:27:52 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 #include <cstring>
 #include <set>
+#include <vector>
 
 void print(std::string str);
 
@@ -50,11 +51,6 @@ void	Channel::addToInviteList(int fd) {
 	_inviteList.insert(fd);
 }
 
-void	Channel::addOperator(int fd) {
-
-	_operators.insert(fd);
-}
-
 void	Channel::removeUser(int fd) {
 
 	_users.erase(fd);
@@ -70,6 +66,11 @@ bool	Channel::isMember(int fd) {
 bool	Channel::isOperator(int fd) {
 
 	return(_operators.find(fd) != _operators.end());
+}
+
+void	Channel::removeOperator(int fd) {
+
+	_operators.erase(fd);
 }
 
 bool	Channel::isInvited(int fd) {
@@ -142,9 +143,10 @@ void	Channel::setKey(std::string& key) {
 	_key = key;
 }
 
-void	Channel::setInviteOnly(bool inviteOnly) {
+void	Channel::setInviteOnly(bool mode) {
 
-	_inviteOnly = inviteOnly;
+	// mode can bet SET or REMOVE
+	_inviteOnly = mode;
 }
 
 void	Channel::setTopicProtection(bool topicProtection) {
@@ -156,6 +158,13 @@ void	Channel::setUserLimit(size_t userLimit) {
 
 	_userLimit = userLimit;
 }
+
+void	Channel::setOperator(int fd) {
+
+	_operators.insert(fd);
+}
+
+
 
 
 

@@ -17,6 +17,9 @@
 #include <map>
 #include <set>
 
+#define RMV_MODE	false
+#define SET_MODE	true
+
 class Channel {
 
 	private:
@@ -39,9 +42,9 @@ class Channel {
 		~Channel();
 
 		void			addUser(int fd);
-		void			addToInviteList(int fd);
-		void			addOperator(int fd);
 		void			removeUser(int fd);
+		void			addToInviteList(int fd);
+		void			removeOperator(int fd);
 		bool			isMember(int fd);
 		bool			isOperator(int fd);
 		bool			isInvited(int fd);
@@ -60,10 +63,11 @@ class Channel {
 
 		void			setTopic(const std::string& topic);
 		void			setKey(std::string& password);
-		void			setInviteOnly(bool inviteOnly);
+		void			setInviteOnly(bool mode);
 		void			setTopicProtection(bool topicProtection);
 		void			setUserLimit(size_t userLimit);
 		void			setInviteList(int fd);
+		void			setOperator(int fd);
 
 };
 

@@ -46,6 +46,7 @@
 #define ERR_PASSWDMISMATCH      "464" // :Password incorrect
 #define ERR_CHANNELISFULL       "471" // <channel> :Cannot join channel (+l)
 #define ERR_INVITEONLYCHAN      "473" // <channel> :Cannot join channel (+i)
+#define ERR_UNKNOWNMODE      	"472" // <nick> <char> :is unknown mode char to me
 #define ERR_BADCHANNELKEY       "475" // <channel> :Cannot join channel (+k)
 #define ERR_CHANOPRIVSNEEDED    "482" // <channel> :You're not channel operator
 

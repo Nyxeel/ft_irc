@@ -6,12 +6,13 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/21 09:24:28 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/21 13:54:35 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include <arpa/inet.h> // htons(), inet_ntop()
+#include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -20,11 +21,13 @@
 #include <iostream> // close()
 #include <poll.h>   // poll(), struct pollfd
 #include <signal.h>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <sys/socket.h> // socket(), bind(), listen(), accept()
 #include <unistd.h>     // close()
 #include <vector>
+#include <cstdlib>
 
 void print(std::string str);
 
@@ -282,7 +285,7 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 	else if (msg.command == CMD_TOPIC)
 		handleTopic(fd, msg);
 	else if (msg.command == CMD_MODE)
-		; // handleMode(fd, msg);
+		handleMode(fd, msg);
 	else
 	    sendToClient(fd, ":ircserv " + std::string(ERR_UNKNOWNCOMMAND) + " "
 			+ _clientMap[fd].getNickname() + " " + msg.command + " :Unknown command\r\n");
@@ -401,6 +404,39 @@ void 	Server::broadcastQuit(int fd) {
 	}
 }
 
+void 	Server::broadcastNickChange(int fd, const std::string& oldNick) {
+
+	Client& client = _clientMap[fd];
+
+	const std::string message = ":" + oldNick + "!"
+			+ client.getUsername() + "@" + client.getHostAdresse()
+			+ " NICK :" + client.getNickname() + "\r\n";
+
+	const std::set<std::string> clientChannels = client.getJoinedChannels();
+	std::set<std::string>::const_iterator it = clientChannels.begin();
+	std::set<int> notified;
+
+	for(; it != clientChannels.end(); it++) {
+
+		Channels::iterator cit = _channels.find(*it);
+		if (cit == _channels.end())
+			continue ;
+
+		const std::set<int>& users = cit->second.getUsers();
+		std::set<int>::const_iterator uit = users.begin();
+
+		for(; uit != users.end(); uit++) {
+
+			if (*uit == fd || notified.find(*uit) != notified.end())
+				continue ;
+			sendToClient(*uit, message);
+			notified.insert(*uit);
+		}
+	}
+
+	sendToClient(fd, message);
+}
+
 
 // ───────────────────────────────────────────────
 // ──────────────── REGISTRATION ─────────────────
@@ -460,12 +496,9 @@ void	Server::handleNick(int fd, const IrcMessage& msg) {
 
 	if (client.isAuthenticated()) {
 
-		// 	TODO: inform all other clients in channel about nickchange
-		//	broadcastNickChange in all active channel
-		// 	format :oldnick!user@host NICK :newnick
-
-		sendToClient(fd, ":" + client.getNickname() + "!" + client.getUsername() + "@host NICK :" + msg.params[0] + "\r\n");
+		std::string oldNick = client.getNickname();
 		client.setNickname(msg.params[0]);
+		broadcastNickChange(fd, oldNick);
 		return ;
 	}
 	client.setNickname(msg.params[0]);
@@ -536,7 +569,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			chan.setKey(key);						//setzt pw
 			chan.addUser(fd);						//add user to userlist in channel
 			_clientMap[fd].addChannel(channels[i]); //wichtig fuer NICK aenderungen zum broadcoasten an andere clients
-			chan.addOperator(fd);
+			chan.setOperator(fd);
 			sendChannelWelcome(fd, chan);
 		}
 
@@ -591,8 +624,7 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 	}
 
 
-	// TODO multi channel msg ???
-	// KICK #chan1,#chan2,#chan3 user1,user2,user3
+	// TODO multi channel bzw user
 	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
 	Client& client = _clientMap[fd];
 
@@ -769,10 +801,177 @@ void	Server::handleTopic(int fd, const IrcMessage& msg) {
 }
 
 
+void	Server::handleMode(int fd, const IrcMessage& msg) {
+
+	Client& client = _clientMap[fd];
+
+	if (msg.params.size() < 2) {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+			+ client.getNickname() + " MODE :Not enough parameters\r\n");
+        return;
+	}
+
+	Channels::iterator it;
+	if (!getValidatedChannel(fd, msg.params[0], it))
+		return;
+
+	Channel& channel = it->second;
+
+	const std::string& modestring = msg.params[1];
+
+	char mode = '+';
+
+	size_t args = msg.params.size() - 2;
+	size_t count = 0;
+
+	for(size_t i = 0; i < modestring.size(); i++) {
+
+		if (modestring[i] == '+' || modestring[i] == '-') {
+
+			mode = modestring[i];
+			continue;
+		}
+		switch (modestring[i]) {
+
+			case 'i': {
+
+					channel.setInviteOnly(mode == '+');
+
+					std::string message = ":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " MODE " + channel.getName() + " " + mode + "i\r\n";
+
+					sendToClient(fd, message);
+					broadcastToChannel(fd, channel, message);
+					break;
+			}
+			case 't': {
+
+					channel.setTopicProtection(mode == '+');
+
+					std::string message = ":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " MODE " + channel.getName() + " " + mode + "t\r\n";
+
+					sendToClient(fd, message);
+					broadcastToChannel(fd, channel, message);
+					break;
+			}
+			case 'k': {
+
+					std::string key = "";
+					if (mode == '+') {
+
+						if (count >= args) {
+							sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+								+ client.getNickname() + " MODE " + mode + "k :Not enough parameters\r\n");
+							break;
+						}
+						key = msg.params[2 + count++];
+					}
+					channel.setKey(key);
+
+					std::string message = ":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " MODE " + channel.getName() + " " + mode + "k"
+						+ (mode == '+' ? " " + key : "") + "\r\n";
+
+					sendToClient(fd, message);
+					broadcastToChannel(fd, channel, message);
+					break;
+
+			}
+			case 'o': {
+
+					if (count >= args) {
+							sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+								+ client.getNickname() + " MODE " + mode + "o :Not enough parameters\r\n");
+							break;
+					}
+					std::string user = msg.params[2 + count++];
+
+					int userFd = getFdByNickname(user);
+					if (!channel.isMember(userFd)) {
+
+					sendToClient(fd, ":ircserv " + std::string(ERR_USERNOTINCHANNEL) + " "
+						+ client.getNickname() + " " + user + " " + channel.getName()
+						+ " :They aren't on that channel\r\n");
+						break ;
+					}
+
+					if ((mode == '+' && channel.isOperator(userFd))
+						|| (mode == '-' && !channel.isOperator(userFd)))
+						break ; // breaken da keine aenderung stattfindet
+
+					else if (mode == '+' && !channel.isOperator(userFd))
+						channel.setOperator(userFd);
+
+					else if (mode == '-' && channel.isOperator(userFd))
+						channel.removeOperator(userFd);
+
+					std::string message = ":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " MODE " + channel.getName() + " " + mode + "o "
+						+ _clientMap[userFd].getNickname() + "\r\n";
+
+					sendToClient(fd, message);
+					broadcastToChannel(fd, channel, message);
+					break;
+
+			}
+
+			case 'l': {
+
+				if (mode == '+') {
+					if (count >= args|| !checkDigits(msg.params[2 + count])) {
+						sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+							+ client.getNickname() + " MODE " + mode + "l :Not enough parameters\r\n");
+						break;
+					}
+
+					char* endptr;
+					size_t userLimit = std::strtol(msg.params[2 + count].c_str(), &endptr, 10);
+					channel.setUserLimit(userLimit);
+				}
+				else
+					channel.setUserLimit(0);
+
+				std::ostringstream oss;
+				oss << channel.getUserLimit();
+
+				std::string message = ":" + client.getNickname() + "!"
+					+ client.getUsername() + "@" + client.getHostAdresse()
+					+ " MODE " + channel.getName() + " " + mode + "l "
+					+ oss.str() + "\r\n";
+
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break ;
+
+			}
+
+			default :
+				sendToClient(fd, ":ircserv " + std::string(ERR_UNKNOWNMODE) + " "
+					+ client.getNickname() + " " + modestring[i]
+					+ " :is unknown mode char to me\r\n");
+
+		}
+	}
+}
 
 ////
 ////		OPERATOR helpers
 ////
+
+bool	Server::checkDigits(const std::string& str) {
+
+	for(size_t i = 0; i < str.size(); i++) {
+
+		if (!std::isdigit(str[i]))
+			return false;
+	}
+	return true;
+}
 
 
 bool	Server::getValidatedChannel(int fd, const std::string& channelName, Channels::iterator& outIt) {
@@ -853,5 +1052,3 @@ int	Server::getFdByNickname(std::string name) const {
 	}
 	return (-1);
 }
-
-

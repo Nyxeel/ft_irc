@@ -94,7 +94,7 @@ all:
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p "$(@D)"
-	if $(CXX) $(CPPFLAGS) -c "$<" -o "$@"; then
+	if $(CXX) $(CXXFLAGS) -c "$<" -o "$@"; then
 		printf "$(OK)│ %-*s │$(RST)\n" $(W) "✔ $@" >> "$(COMPILE_LOG)"
 	else
 		printf "\n$(HDR)%s$(RST)\n" "$(TOP_COMPILE)"

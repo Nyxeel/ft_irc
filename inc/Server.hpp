@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 18:26:40 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/21 13:53:33 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
 #define ERROR 	1
 #define FATAL	-1
 #define MAX_CLIENTS 1024
+
+
 
 #define CMD_PASS	"PASS"
 #define CMD_NICK	"NICK"
@@ -78,9 +80,11 @@ class Server {
 		void					sendChannelWelcome(int fd, Channel& chan);
 
 		void 					broadcastToChannel(int fd, Channel& chan, const std::string& message);
+		void					broadcastNickChange(int fd, const std::string& oldNick);
 		void					broadcastQuit(int fd);
 
 		int						getFdByNickname(std::string name) const;
+		bool					checkDigits(const std::string& str);
 
 		bool					getValidatedChannel(int fd, const std::string& channelName, Channels::iterator& outIt);
 		bool					getValidatedTargetUser(int fd, Channel& channel, const std::string& nickname, int& outUserFd, bool requireMember);
