@@ -30,6 +30,7 @@ class Channel {
 
 		std::set<int>	_users;
 		std::set<int> 	_operators;
+		std::set<int> 	_inviteList;
 
 	public:
 
@@ -52,6 +53,7 @@ class Channel {
 		size_t			getUserLimit() const;
 		const std::set<int>&	getUsers() const;
 		const std::set<int>&	getOperators() const;
+		const std::set<int>&	getInviteList() const;
 
 
 		void			setTopic(std::string& topic);
@@ -59,6 +61,7 @@ class Channel {
 		void			setInviteOnly(bool inviteOnly);
 		void			setTopicProtection(bool topicProtection);
 		void			setUserLimit(size_t userLimit);
+		void			setInviteList(int fd);
 
 };
 

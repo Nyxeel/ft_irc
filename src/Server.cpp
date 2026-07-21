@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 18:46:53 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/20 20:01:24 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 	else if (msg.command == CMD_KICK)
 		handleKick(fd, msg);
 	else if (msg.command == CMD_INVITE)
-		; // handleInvite(fd, msg);
+		handleInvite(fd, msg);
 	else if (msg.command == CMD_TOPIC)
 		; // handleTopic(fd, msg);
 	else if (msg.command == CMD_MODE)
@@ -644,9 +644,10 @@ void	Server::handleKick(int fd, const IrcMessage& msg) {
         return;
 	}
 
-	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
+	// is channel exisisting ?
+	// //TODO create helper function to check isChannelExisting(std::string& channelName)
 
-	// Channel found?? else -> ERR_NOSUCHCHANNEL
+	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
 	if (it != _channels.end()) {
 
 		if (!it->second.isOperator(fd)) {
@@ -670,6 +671,8 @@ void	Server::handleKick(int fd, const IrcMessage& msg) {
 
 
 		// check is user existing ??
+
+		// TODO: create helper function !isUserInChannel(std::string& nickname)
 		int userFd;
 		if ((userFd = getFdByNickname(users[i])) == FATAL) {
 
@@ -710,5 +713,74 @@ int	Server::getFdByNickname(std::string name) const {
 
 	return (-1);
 }
+
+
+void	Server::handleInvite(int fd, const IrcMessage& msg) {
+
+
+	Client& client = _clientMap[fd];
+
+	//CLAUDE what if mehr als 2 args ??
+	if (msg.params.size() < 2) {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
+			+ client.getNickname() + " INVITE :Not enough parameters\r\n");
+        return;
+	}
+
+	// is channel exisisting ?
+	// //TODO create helper function to check isChannelExisting(std::string& channelName)
+
+	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
+	if (it != _channels.end()) {
+
+		if (!it->second.isOperator(fd)) {
+			sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
+				+ client.getNickname() + " " + msg.params[1]
+				+ " :You're not channel operator\r\n");
+        	return;
+		}
+	}
+	else {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHCHANNEL) + " "
+			+ client.getNickname() + " " + msg.params[1]
+			+ " :No such channel\r\n");
+        return;
+	}
+
+
+	Channel& channel = it->second;
+	std::vector<std::string> users = _parser.splitByComma(msg.params[1]);
+
+	for (size_t i = 0; i < users.size(); i++) {
+
+
+		// check is user existing ??
+
+		// TODO: create helper function !isUserInChannel(std::string& nickname)
+		int userFd;
+		if ((userFd = getFdByNickname(users[i])) == FATAL) {
+
+			sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK) + " "
+				+ client.getNickname() + " " + users[i]
+				+ " :No such nick/channel\r\n");
+			continue ;
+		}
+
+		// check is user channel member??
+		if (!channel.isMember(userFd)) {
+			sendToClient(fd, ":ircserv " + std::string(ERR_USERNOTINCHANNEL) + " "
+				+ client.getNickname() + " " + users[i] + " " + channel.getName()
+				+ " :They aren't on that channel\r\n");
+			continue ;
+		}
+	}
+
+
+
+
+
+
+}
+
 
 
