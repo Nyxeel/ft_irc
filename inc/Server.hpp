@@ -82,6 +82,9 @@ class Server {
 
 		int						getFdByNickname(std::string name) const;
 
+		bool					getValidatedChannel(int fd, const std::string& channelName, Channels::iterator& outIt);
+		bool					getValidatedTargetUser(int fd, Channel& channel, const std::string& nickname, int& outUserFd, bool requireMember);
+
 
 	public:
 

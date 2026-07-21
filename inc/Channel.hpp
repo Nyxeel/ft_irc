@@ -39,10 +39,12 @@ class Channel {
 		~Channel();
 
 		void			addUser(int fd);
+		void			addToInviteList(int fd);
 		void			addOperator(int fd);
 		void			removeUser(int fd);
 		bool			isMember(int fd);
 		bool			isOperator(int fd);
+		bool			isInvited(int fd);
 
 
 		std::string		getName() const;
@@ -56,7 +58,7 @@ class Channel {
 		const std::set<int>&	getInviteList() const;
 
 
-		void			setTopic(std::string& topic);
+		void			setTopic(const std::string& topic);
 		void			setKey(std::string& password);
 		void			setInviteOnly(bool inviteOnly);
 		void			setTopicProtection(bool topicProtection);

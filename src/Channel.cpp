@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/20 16:05:47 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/21 09:07:40 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,23 @@ Channel::~Channel() {
 void	Channel::addUser(int fd) {
 
 	_users.insert(fd);
-	return;
+}
+
+void	Channel::addToInviteList(int fd) {
+
+	_inviteList.insert(fd);
 }
 
 void	Channel::addOperator(int fd) {
 
 	_operators.insert(fd);
-	return;
 }
 
 void	Channel::removeUser(int fd) {
 
 	_users.erase(fd);
+	if (isOperator(fd))
+		_operators.erase(fd);
 }
 
 bool	Channel::isMember(int fd) {
@@ -66,6 +71,17 @@ bool	Channel::isOperator(int fd) {
 
 	return(_operators.find(fd) != _operators.end());
 }
+
+bool	Channel::isInvited(int fd) {
+
+	if (_inviteList.find(fd) != _inviteList.end()) {
+
+		_inviteList.erase(fd);
+		return true;
+	}
+	return(false);
+}
+
 
 
 // ───────────────────────────────────────────────
@@ -116,7 +132,7 @@ const std::set<int>&	Channel::getOperators() const {
 // ────────────────── SETTERS ────────────────────
 // ───────────────────────────────────────────────
 
-void	Channel::setTopic(std::string& topic) {
+void	Channel::setTopic(const std::string& topic) {
 
 	_topic = topic;
 }
