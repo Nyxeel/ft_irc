@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/21 13:54:35 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/21 14:49:12 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -691,6 +691,7 @@ void	Server::handleKick(int fd, const IrcMessage& msg) {
 		return;
 
 	Channel& channel = it->second;
+	std::string channelName = msg.params[0];
 	std::vector<std::string> users = _parser.splitByComma(msg.params[1]);
 
 	for (size_t i = 0; i < users.size(); i++) {
@@ -704,9 +705,16 @@ void	Server::handleKick(int fd, const IrcMessage& msg) {
 				+ client.getUsername() + "@" + client.getHostAdresse()
 				+ " KICK " + channel.getName() + " " + users[i] + " :" + comment + "\r\n");
 
+		sendToClient(fd, message);
 		broadcastToChannel(fd, channel, message);
+		_clientMap[userFd].removeChannel(channelName);
+
+		//loescht channel weil letzter user gekickt wurde
+		if (channel.getUsers().size() == 1) {
+			_channels.erase(channelName);
+			break ;
+		}
 		channel.removeUser(userFd);
-		_clientMap[userFd].removeChannel(msg.params[0]);
 	}
 }
 
@@ -796,7 +804,7 @@ void	Server::handleTopic(int fd, const IrcMessage& msg) {
 	else
 		sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
 			+ client.getNickname() + " " + channel.getName() +
-			+ " :You're not channel operator\r\n");
+			+ " :Topic restriction is active!\r\n");
 
 }
 
