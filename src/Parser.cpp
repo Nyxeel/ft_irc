@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <iostream>
 #include <cctype>
 
 //(de)constructor
@@ -50,7 +49,7 @@ void Parser::_parseSingleLine(const std::string &line, IrcMessage &msg) {
 		msg.command = token;
 
 		while (iss >> token)
-			msg.params.push_back(token);		
+			msg.params.push_back(token);
 	}
 
 	if (trailingPos != std::string::npos || (!trailingPart.empty() && s.empty()))
@@ -93,6 +92,7 @@ std::vector<IrcMessage> Parser::processBuffer(int clientFd, const std::string &r
 	return parsedMessages;
 }
 
+
 void Parser::clearClient(int clientFd) {
 	_clientBuffers.erase(clientFd);
 }
@@ -103,38 +103,37 @@ std::vector<std::string> Parser::splitByComma(const std::string &str) {
 	std::string token;
 
 	while (std::getline(ss, token, ',')) {
-		if (!token.empty())
-			tokens.push_back(token);
+		tokens.push_back(token); // TODO isempty() entfernt wegen #channel - key in JOIN. sonst noch woanders verwendet ??
 	}
 	return tokens;
 }
 
 bool Parser::isValidNickname(const std::string &nick) {
-	if (nick.empty() || nick.length() > 9) return false;
+	if (nick.empty()) return false;
 
 	if (std::isdigit(nick[0]) || nick[0] == '-') return false;
 
-	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
+	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\|`_^{}";
 	for (size_t i = 0; i < nick.length(); ++i)
 		if (allowed.find(nick[i]) == std::string::npos) return false;
-	
+
 	return true;
 }
 
 bool Parser::isValidUsername(const std::string &user) {
-	if (user.empty() || user.length() > 9) return false;
+	if (user.empty() || user.length() > 9) return false; // TODO lenght anpassen falls notwendig
 
 	if (std::isdigit(user[0]) || user[0] == '-') return false;
 
-	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\`_^{}";
+	std::string allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]\\|`_^{}";
 	for (size_t i = 0; i < user.length(); ++i)
 		if (allowed.find(user[i]) == std::string::npos) return false;
-	
+
 	return true;
 }
 
 bool Parser::isValidChannelName(const std::string &channel) {
-	if (channel.empty() || channel.length() > 50) return false;
+	if (channel.empty() || channel.length() < 2 || channel.length() > 50) return false;
 
 	if (channel[0] != '#' && channel[0] != '&') return false;
 
@@ -165,20 +164,11 @@ bool Parser::ircStringCompare(const std::string &s1, const std::string &s2) {
 }
 
 bool Parser::isNicknameInUse(const std::string &nickname, const ClientMap &clients) {
+
 	ClientMap::const_iterator it;
 
 	for (it = clients.begin(); it != clients.end(); ++it)
 		if (ircStringCompare(it->second.getNickname(), nickname))
-			return true;
-
-	return false;
-}
-
-bool Parser::isUsernameInUse(const std::string &username, const ClientMap &clients) {
-	ClientMap::const_iterator it;
-
-	for (it = clients.begin(); it != clients.end(); ++it)
-		if (ircStringCompare(it->second.getUsername(), username))
 			return true;
 
 	return false;
