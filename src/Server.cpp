@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/21 14:49:12 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/23 10:11:02 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ void Server::setup() {
 	if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == FATAL)
 	  throw std::runtime_error(std::string("Error fcntl(): ") + strerror(errno));
 
-	  // Port/IP in Netzwerk-Byteorder umwandeln
+	// Port/IP in Netzwerk-Byteorder umwandeln
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_port = htons(_port);
@@ -169,7 +169,6 @@ void Server::run() {
 	serverfd.fd = _serverSocket;    // welcher fd überwacht werden soll
 	serverfd.events = POLLIN;       // worauf gewartet wird: "lesbar" = neue Verbindung wartet
 
-
 	fds.push_back(serverfd);        // in die Liste aller überwachten fds aufnehmen
 
 	while(_running) {
@@ -189,6 +188,7 @@ void Server::run() {
 			if (!(socket->revents & POLLIN) && !(socket->revents & POLLHUP))
     			continue;  // skip rest wenn KEINE Events
 
+			// Neuer client wird geadded
 			if (socket->fd == _serverSocket){
 
   				struct sockaddr_in clientAddr;
@@ -221,17 +221,18 @@ void Server::run() {
 				_clientMap[clientSocket].setHostAdresse(ip);
 			}
 
+			// Ereignis auf CLIENT
 			else {
-				// Ereignis auf CLIENT
-				//reciv() and send()
 
-				char buffer[4];
+				char buffer[4] = "";
   				memset(buffer, 0, sizeof(buffer));
-  				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
+
+				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
 				if (bytesReceived <= 0) {
 
 					if (bytesReceived == 0)
 						std::cout << "Client disconnected" << std::endl;
+
 					else
 						std::cerr << "recv failed: " << strerror(errno) << std::endl;
 
@@ -239,14 +240,13 @@ void Server::run() {
 					_clientMap.erase(socket->fd);  		// Client destructor wird gecalled und closed _clientfd
 					_parser.clearClient(socket->fd);	// loescht den eintrag in der map fuer IRCMessage
 					close(socket->fd);           		// Server schließt FD
-
-
 					socket = fds.erase(socket);
+
 					socket--;              				// Schleife macht danach socket++, das gleicht das aus
 					continue;
 				}
 
-
+				// parse Line
 				std::vector<IrcMessage> msgs = _parser.processBuffer(socket->fd, std::string(buffer, bytesReceived));
 				for (size_t i = 0; i < msgs.size(); i++)
 				    handleCommand(socket->fd, msgs[i]);
@@ -623,54 +623,60 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
         return;
 	}
 
-
-	// TODO multi channel bzw user
-	std::map<std::string, Channel>::iterator it = _channels.find(msg.params[0]);
+	std::vector<std::string> targets = _parser.splitByComma(msg.params[0]);
 	Client& client = _clientMap[fd];
 
-	// Is parmas[0] a channel ??
-	if (it != _channels.end()) {
+	for (size_t i = 0; i < targets.size(); i++) {
 
-		Channel& chan = it->second;
-		// is client member of the channel ??
-		if (chan.isMember(fd)) {
+		std::map<std::string, Channel>::iterator it = _channels.find(targets[i]);
 
-			const std::string message = (":" + client.getNickname() + "!"
-					+ client.getUsername() + "@" + client.getHostAdresse()
-					+ " PRIVMSG " + chan.getName() + " :" + msg.params[1] + "\r\n");
+		// Is target[i] a channel ??
+		if (it != _channels.end()) {
 
-			broadcastToChannel(fd, chan, message);
+			Channel& chan = it->second;
+			// is client member of the channel ??
+			if (chan.isMember(fd)) {
+
+				const std::string message = (":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " PRIVMSG " + chan.getName() + " :" + msg.params[1] + "\r\n");
+
+				broadcastToChannel(fd, chan, message);
+			}
+			// member not found
+			else {
+				sendToClient(fd, ":ircserv " + std::string(ERR_CANNOTSENDTOCHAN)
+				+ " " + chan.getName() + " :Cannot send to channel\r\n");
+			}
+			continue;
 		}
-		// member not found
-		else {
-			sendToClient(fd, ":ircserv " + std::string(ERR_CANNOTSENDTOCHAN)
-			+ " " + chan.getName() + " :Cannot send to channel\r\n");
+
+		// an client privat senden
+		ClientMap::iterator iter = _clientMap.begin();
+
+		bool found = false;
+		for(; iter != _clientMap.end(); iter++) {
+
+			if (iter->second.getNickname() == targets[i] && iter->second.isAuthenticated()) {
+
+				const std::string message = (":" + client.getNickname() + "!"
+						+ client.getUsername() + "@" + client.getHostAdresse()
+						+ " PRIVMSG " + iter->second.getNickname() + " :" + msg.params[1] + "\r\n");
+
+				sendToClient(iter->first, message);
+				found = true;
+				break ;
+			}
 		}
-		return;
+
+		//channelname oder username not found
+		if (!found)
+			sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK)
+				+ " " + targets[i] + " :No such nick/channel\r\n");
 	}
-
-	// an client privat senden
-	ClientMap::iterator iter = _clientMap.begin();
-	for(; iter != _clientMap.end(); iter++) {
-
-		if (iter->second.getNickname() == msg.params[0] && iter->second.isAuthenticated()) {
-
-			const std::string message = (":" + client.getNickname() + "!"
-					+ client.getUsername() + "@" + client.getHostAdresse()
-					+ " PRIVMSG " + client.getNickname() + " :" + msg.params[1] + "\r\n");
-
-			sendToClient(iter->first, message);
-			return ;
-		}
-	}
-
-	//channelname oder username not found
-	sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK)
-			+ " " + msg.params[0] + " :No such nick/channel\r\n");
 
 }
 
-// TODO muss channel auch & handlen zb &channel statt #channel??
 // ───────────────────────────────────────────────
 // ──────────────── OPERATOR COMMANDS ────────────
 // ───────────────────────────────────────────────

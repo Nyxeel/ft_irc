@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:21:46 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/21 13:53:33 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/23 10:13:29 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
 #include <vector>
 #include <poll.h>   		// poll(), struct pollfd
+#include <csignal>			// sig_atomic_t
 
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -27,7 +28,6 @@
 #define ERROR 	1
 #define FATAL	-1
 #define MAX_CLIENTS 1024
-
 
 
 #define CMD_PASS	"PASS"
@@ -56,7 +56,7 @@ class Server {
 
 		void					init_signals();
 		void					cleanSockets();
-		bool					_running;
+		volatile sig_atomic_t	_running;
 
 		ClientMap				_clientMap;
 		Parser					_parser;
