@@ -1,5 +1,6 @@
 
 #include "../inc/Server.hpp"
+#include "../inc/Bot.hpp"
 #include <arpa/inet.h> // htons(), inet_ntop()
 #include <cctype>
 #include <cerrno>
@@ -674,6 +675,17 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 			continue;
 		}
 
+		if(BONUS) {
+
+			Bot bot("bot");
+
+			std::string message = msg.params[1];
+			if (bot.processBotMessage(msg, message)) {
+				sendToClient(fd, bot.getName() + ": " + message + "\r\n");
+			}
+			return;
+		}
+
 		// an client privat senden
 		ClientMap::iterator iter = _clientMap.begin();
 
@@ -867,10 +879,23 @@ void	Server::handleMode(int fd, const IrcMessage& msg) {
 	}
 
 	Channels::iterator it;
-	if (!getValidatedChannel(fd, msg.params[0], it))
+	it = _channels.find(msg.params[0]);
+	if (it == _channels.end()) {
+
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHCHANNEL) + " "
+			+ client.getNickname() + " " + msg.params[0]
+			+ " :No such channel\r\n");
 		return;
+	}
 
 	Channel& channel = it->second;
+	if (!channel.isMember(fd)) {
+
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOTONCHANNEL) + " "
+			+ client.getNickname() + " " + channel.getName()
+			+ " :You're not on that channel\r\n");
+		return;
+	}
 
 	// MODE #channel ohne modestring -> aktuelle Modes anzeigen
 	if (msg.params.size() < 2) {
@@ -898,8 +923,15 @@ void	Server::handleMode(int fd, const IrcMessage& msg) {
 		return;
 	}
 
-	const std::string& modestring = msg.params[1];
+	if (!channel.isOperator(fd)) {
 
+		sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
+			+ client.getNickname() + " " + channel.getName()
+			+ " :You're not channel operator\r\n");
+		return;
+	}
+
+	const std::string& modestring = msg.params[1];
 	char mode = '+';
 
 	size_t args = msg.params.size() - 2;

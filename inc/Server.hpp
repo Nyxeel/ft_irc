@@ -16,6 +16,7 @@
 #include "Parser.hpp"
 #include "IrcMessage.hpp"
 
+
 #define SUCCESS 0
 #define ERROR 	1
 #define FATAL	-1

@@ -1,6 +1,4 @@
-
-#include "../inc/Bot.hpp"
-
+#include "Bot.hpp"
 #include "../inc/Parser.hpp"
 #include <ctime>
 #include <cstdlib>
@@ -75,7 +73,7 @@ std::string Bot::_flipCoin() const {
 
 //public functions
 
-const std::string Bot::getName() const {
+std::string Bot::getName() const {
 	return _name;
 }
 
