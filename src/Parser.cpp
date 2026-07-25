@@ -109,7 +109,7 @@ std::vector<std::string> Parser::splitByComma(const std::string &str) {
 }
 
 bool Parser::isValidNickname(const std::string &nick) {
-	if (nick.empty()) return false;
+	if (nick.empty() || nick.length() > 9) return false; // RFC 2812: max 9 Zeichen
 
 	if (std::isdigit(nick[0]) || nick[0] == '-') return false;
 

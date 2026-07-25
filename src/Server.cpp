@@ -6,7 +6,7 @@
 /*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/23 10:11:02 by pjelinek         ###   ########.fr       */
+/*   Updated: 2026/07/25 11:08:43 by pjelinek         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,22 @@ void Server::stop() {
 
 inline void Server::cleanSockets() {
 
+
+	if(!_clientMap.empty()) {
+
+		ClientMap::iterator it = _clientMap.begin();
+		int fd = it->first;
+		for(; it != _clientMap.end(); it++) {
+
+			if (fd >= 0) {
+
+				sendToClient(fd, "Connection lost to " + it->second.getHostAdresse() + "\r\n");
+				close(fd);
+				fd = -1;
+			}
+		}
+
+	}
 	if (_serverSocket != -1) {
 	  close(_serverSocket);
 	  _serverSocket = -1;
