@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: pjelinek <pjelinek@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/29 19:43:53 by pjelinek          #+#    #+#             */
-/*   Updated: 2026/07/25 11:08:43 by pjelinek         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include <arpa/inet.h> // htons(), inet_ntop()
@@ -108,18 +97,16 @@ void Server::stop() {
 
 inline void Server::cleanSockets() {
 
-
 	if(!_clientMap.empty()) {
 
 		ClientMap::iterator it = _clientMap.begin();
-		int fd = it->first;
+
 		for(; it != _clientMap.end(); it++) {
 
-			if (fd >= 0) {
+			if (it->first >= 0) {
 
-				sendToClient(fd, "Connection lost to " + it->second.getHostAdresse() + "\r\n");
-				close(fd);
-				fd = -1;
+				sendToClient(it->first, "Connection lost to " + it->second.getHostAdresse() + "\r\n");
+				close(it->first);
 			}
 		}
 
@@ -139,20 +126,26 @@ void Server::setup() {
 
 	init_signals();
 
+	std::time_t now = std::time(NULL);
+	_createdAt = std::ctime(&now);
+
+	//delete newline at end of time string because of \r\n from server
+	if (!_createdAt.empty() && _createdAt[_createdAt.size() - 1] == '\n')
+		_createdAt.erase(_createdAt.size() - 1);
+
 	// Socket erstellen
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket == FATAL)
 	  throw std::runtime_error(std::string("Error socket(): ") +
 	                           strerror(errno));
 
-							   // Socket konfigurieren (SO_REUSEADDR)
+	// Socket konfigurieren (SO_REUSEADDR)
 	int opt = 1;
-	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) ==
-	    -1)
-	  throw std::runtime_error(std::string("Error setsockopt(): ") +
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+		throw std::runtime_error(std::string("Error setsockopt(): ") +
 	                           strerror(errno));
 
-							   // Non-blocking setzen
+	// Non-blocking setzen
 	if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) == FATAL)
 	  throw std::runtime_error(std::string("Error fcntl(): ") + strerror(errno));
 
@@ -240,7 +233,7 @@ void Server::run() {
 			// Ereignis auf CLIENT
 			else {
 
-				char buffer[4] = "";
+				char buffer[4096];
   				memset(buffer, 0, sizeof(buffer));
 
 				int bytesReceived = recv(socket->fd, buffer, sizeof(buffer) - 1, 0);
@@ -339,6 +332,14 @@ void	Server::sendWelcome(int fd) {
     	sendToClient(fd, ":ircserv " + std::string(RPL_WELCOME) + " " + nick +
 			" :Welcome to the IRC Network " + nick + "!" + user + "@" + _clientMap[fd].getHostAdresse() + "\r\n");
 
+		sendToClient(fd, ":ircserv " + std::string(RPL_YOURHOST) + " " + nick +
+			" :Your host is ircserv, running version 1.0\r\n");
+
+		sendToClient(fd, ":ircserv " + std::string(RPL_CREATED) + " " + nick +
+			" :This server was created " + _createdAt + "\r\n");
+
+		sendToClient(fd, ":ircserv " + std::string(RPL_MYINFO) + " " + nick +
+			" ircserv 1.0 - itkol\r\n");
 }
 
 void	Server::sendChannelWelcome(int fd, Channel& channel) {
@@ -569,7 +570,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 
         if (!_parser.isValidChannelName(channels[i])) {
         	sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHCHANNEL) + " "
-				+ channels[i] + " :No such channel\r\n");
+				+ _clientMap[fd].getNickname() + " " + channels[i] + " :No such channel\r\n");
 			continue ;
 
         }
@@ -598,7 +599,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			//prueft inivtie only per operator
 			if(chan.getInviteOnly() && !chan.isInvited(fd)) {
 				sendToClient(fd, ":ircserv " + std::string(ERR_INVITEONLYCHAN) + " "
-					+ channels[i] + " :Cannot join channel (+i)\r\n");
+					+ _clientMap[fd].getNickname() + " " + channels[i] + " :Cannot join channel (+i)\r\n");
 				continue ;
 			}
 
@@ -606,7 +607,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			else if(chan.getUserLimit() != 0 && chan.getUsers().size() >= chan.getUserLimit()) {
 
 				sendToClient(fd, ":ircserv " + std::string(ERR_CHANNELISFULL) + " "
-					+ channels[i] + " :Cannot join channel (+l)\r\n");
+					+ _clientMap[fd].getNickname() + " " + channels[i] + " :Cannot join channel (+l)\r\n");
 				continue ;
 			}
 
@@ -614,7 +615,7 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 			else if (!chan.getKey().empty() && key != chan.getKey()) {
 
 				sendToClient(fd, ":ircserv " + std::string(ERR_BADCHANNELKEY) + " "
-				+ channels[i] + " :Cannot join channel (+k)\r\n");
+				+ _clientMap[fd].getNickname() + " " + channels[i] + " :Cannot join channel (+k)\r\n");
 				continue ;
 			}
 
@@ -633,9 +634,15 @@ void Server::handleJoin(int fd, const IrcMessage& msg) {
 
 void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 
+	if (msg.params.empty()) {
+		sendToClient(fd, ":ircserv " + std::string(ERR_NORECIPIENT) + " "
+			+ _clientMap[fd].getNickname() + " :No recipient given\r\n");
+        return;
+	}
+
 	if (msg.params.size() < 2) {
-		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
-			+ _clientMap[fd].getNickname() + " PRIVMSG :Not enough parameters\r\n");
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOTEXTTOSEND) + " "
+			+ _clientMap[fd].getNickname() + " :No text to send\r\n");
         return;
 	}
 
@@ -662,7 +669,7 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 			// member not found
 			else {
 				sendToClient(fd, ":ircserv " + std::string(ERR_CANNOTSENDTOCHAN)
-				+ " " + chan.getName() + " :Cannot send to channel\r\n");
+				+ " " + client.getNickname() + " " + chan.getName() + " :Cannot send to channel\r\n");
 			}
 			continue;
 		}
@@ -688,7 +695,7 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 		//channelname oder username not found
 		if (!found)
 			sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK)
-				+ " " + targets[i] + " :No such nick/channel\r\n");
+				+ " " + client.getNickname() + " " + targets[i] + " :No such nick/channel\r\n");
 	}
 
 }
@@ -835,7 +842,7 @@ void	Server::handleMode(int fd, const IrcMessage& msg) {
 
 	Client& client = _clientMap[fd];
 
-	if (msg.params.size() < 2) {
+	if (msg.params.empty()) {
 		sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " "
 			+ client.getNickname() + " MODE :Not enough parameters\r\n");
         return;
@@ -846,6 +853,32 @@ void	Server::handleMode(int fd, const IrcMessage& msg) {
 		return;
 
 	Channel& channel = it->second;
+
+	// MODE #channel ohne modestring -> aktuelle Modes anzeigen
+	if (msg.params.size() < 2) {
+
+		std::string modes = "+";
+		std::string params;
+
+		if (channel.getInviteOnly())
+			modes += "i";
+		if (channel.getTopicProtection())
+			modes += "t";
+		if (!channel.getKey().empty()) {
+			modes += "k";
+			params += " " + channel.getKey();
+		}
+		if (channel.getUserLimit() != 0) {
+			modes += "l";
+			std::ostringstream oss;
+			oss << channel.getUserLimit();
+			params += " " + oss.str();
+		}
+
+		sendToClient(fd, ":ircserv " + std::string(RPL_CHANNELMODEIS) + " "
+			+ client.getNickname() + " " + channel.getName() + " " + modes + params + "\r\n");
+		return;
+	}
 
 	const std::string& modestring = msg.params[1];
 

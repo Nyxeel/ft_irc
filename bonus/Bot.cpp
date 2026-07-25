@@ -1,3 +1,6 @@
+
+
+
 #include "Bot.hpp"
 #include "../inc/Parser.hpp"
 #include <ctime>
@@ -61,6 +64,8 @@ std::string Bot::getName() const {
 }
 
 bool Bot::processBotMessage(const IrcMessage &msg, std::string &responseText) {
+
+	// TODO warum auf PRIVMSG pruefen ??
 	if (msg.command != "PRIVMSG" || msg.params.size() < 2)
 		return false;
 
