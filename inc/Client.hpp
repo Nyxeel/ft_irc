@@ -63,3 +63,21 @@ typedef std::map<int, Client> ClientMap;
 
 
 #endif
+
+
+// ### DCC Filetransfer – relevante Befehle ###
+// 
+// /dcc send <nick> <file>          Datei an <nick> senden
+// /dcc get <nick> <file>           Angebotene Datei annehmen/downloaden
+// /dcc close send <nick> <file>    Sende-Transfer abbrechen
+// /dcc close get <nick> <file>     Empfangs-Transfer abbrechen
+// /dcc list                        Alle offenen DCC-Verbindungen anzeigen
+// 
+// ### Relevante Einstellungen ###
+// 
+// /set dcc_download_path           Zeigt/setzt Download-Ordner
+// /set dcc_upload_path             Standard-Ordner beim Senden (relativer Pfad)
+// /set dcc_port_range <von>-<bis>  Portbereich für DCC-Verbindungen
+// /set dcc_autorename ON/OFF       Bei Namenskonflikt neue Datei mit Suffix
+// /set dcc_autoresume ON/OFF       Automatisch fortsetzen statt neu anlegen
+// /set dcc_autoget ON/OFF          Dateien automatisch ohne Nachfrage annehmen

@@ -682,6 +682,9 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 
 			if (iter->second.getNickname() == targets[i] && iter->second.isAuthenticated()) {
 
+
+				// if (BONUS)
+
 				const std::string message = (":" + client.getNickname() + "!"
 						+ client.getUsername() + "@" + client.getHostAdresse()
 						+ " PRIVMSG " + iter->second.getNickname() + " :" + msg.params[1] + "\r\n");

@@ -45,11 +45,11 @@ class Server {
 		std::string 			_password;
 		std::string				_createdAt;
 
+		volatile sig_atomic_t	_running;
 		struct sockaddr_in		_addr;
 
 		void					init_signals();
 		void					cleanSockets();
-		volatile sig_atomic_t	_running;
 
 		ClientMap				_clientMap;
 		Parser					_parser;
