@@ -797,13 +797,20 @@ void	Server::handleTopic(int fd, const IrcMessage& msg) {
         return;
 	}
 
+	//validate channel
 	Channels::iterator it;
-	if (!getValidatedChannel(fd, msg.params[0], it))
+	it = _channels.find(msg.params[0]);
+	if (it == _channels.end()) {
+
+		sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHCHANNEL) + " "
+			+ client.getNickname() + " " + msg.params[0]
+			+ " :No such channel\r\n");
 		return;
+	}
 
 	Channel& channel = it->second;
-
-	if (msg.params.size() == 1) {
+	// read TOPIC
+	if (msg.params.size() == 1 && channel.isMember(fd)) {
 
 		if (channel.getTopic().empty())
 			sendToClient(fd, ":ircserv " + std::string(RPL_NOTOPIC) + " " + client.getNickname() + " "
@@ -816,7 +823,8 @@ void	Server::handleTopic(int fd, const IrcMessage& msg) {
         return;
 	}
 
-	if (!channel.getTopicProtection()) {
+	//SET new topic
+	if ((!channel.getTopicProtection() && channel.isMember(fd)) || channel.isOperator(fd)) {
 
 		std::string message = ":" + client.getNickname() + "!"
 			+ client.getUsername() + "@" + client.getHostAdresse()
@@ -828,13 +836,20 @@ void	Server::handleTopic(int fd, const IrcMessage& msg) {
 		channel.setTopic(msg.params[1]);
 
 		return;
-
 	}
-	else
-		sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
-			+ client.getNickname() + " " + channel.getName() +
-			+ " :Topic restriction is active!\r\n");
+	if (!channel.isMember(fd)) {
+			sendToClient(fd, ":ircserv " + std::string(ERR_NOTONCHANNEL) + " "
+			+ client.getNickname() + " " + msg.params[0]
+			+ " :You're not on that channel\r\n");
+		return;
+	}
+	if (!channel.isOperator(fd)) {
 
+		sendToClient(fd, ":ircserv " + std::string(ERR_CHANOPRIVSNEEDED) + " "
+			+ client.getNickname() + " " + msg.params[0]
+			+ " :You're not channel operator\r\n");
+		return;
+	}
 }
 
 
