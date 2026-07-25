@@ -1,7 +1,7 @@
 
 
 
-#include "Bot.hpp"
+#include "../inc/Bot.hpp"
 #include "../inc/Parser.hpp"
 #include <ctime>
 #include <cstdlib>

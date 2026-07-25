@@ -2,21 +2,35 @@ NAME		= ircserv
 CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -fdiagnostics-color=always -MMD -MP -std=c++98
 MAKEFLAGS	+= --no-print-directory
+BONUS_FLAGS = -DBONUS=1
 
-SRC_DIR		= src
-OBJ_DIR		= objs
+BONUS       ?= 0
 
-SRCS		=	main.cpp \
+SRCS        =	main.cpp \
 				Server.cpp \
 				Channel.cpp \
 				Client.cpp \
 				Parser.cpp
+
+SRCS_BONUS  =	Bot.cpp
+
+ifeq ($(BONUS),1)
+	SRCS        += $(SRCS_BONUS)
+	CXXFLAGS    += $(BONUS_FLAGS)
+endif
+
+SRC_DIR		= src
+OBJ_DIR		= objs
 
 SRCS_FULL	= $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJS		= $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS		= $(OBJS:.o=.d)
 HEADERS		= $(wildcard *.hpp *.h)
 COMPILE_LOG	= $(OBJ_DIR)/.compile_log
+
+
+
+
 
 # Farben
 OK	= \033[38;5;76m
@@ -91,6 +105,10 @@ all:
 
 		$(MAKE) $(NAME)
 	fi
+
+bonus:
+	$(MAKE) all BONUS=1
+
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p "$(@D)"
@@ -179,4 +197,4 @@ fclean:
 
 re: fclean all
 
-.PHONY: all clean fclean re run
+.PHONY: all clean fclean re run bonus

@@ -1,6 +1,10 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+#ifndef BONUS
+# define BONUS 0
+#endif
+
 #include <string>
 #include <netinet/in.h>   	// struct sockaddr_in, INADDR_ANY
 #include <vector>
