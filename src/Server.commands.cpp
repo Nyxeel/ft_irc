@@ -384,6 +384,17 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 	}
 
 	if (msg.params.size() < 2) {
+
+		if(BONUS) {
+
+			Bot bot;
+
+			std::string message = msg.params[1];
+			if (bot.processBotMessage(msg, message)) {
+				sendToClient(fd, bot.getName() + ": " + message + "\r\n");
+				return;
+			}
+		}
 		sendToClient(fd, ":ircserv " + std::string(ERR_NOTEXTTOSEND) + " "
 			+ _clientMap[fd].getNickname() + " :No text to send\r\n");
         return;
@@ -417,16 +428,6 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 			continue;
 		}
 
-		if(BONUS) {
-
-			Bot bot("bot");
-
-			std::string message = msg.params[1];
-			if (bot.processBotMessage(msg, message)) {
-				sendToClient(fd, bot.getName() + ": " + message + "\r\n");
-			}
-			return;
-		}
 
 		// an client privat senden
 		ClientMap::iterator iter = _clientMap.begin();

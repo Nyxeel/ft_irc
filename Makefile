@@ -2,7 +2,7 @@ NAME		= ircserv
 CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -fdiagnostics-color=always -MMD -MP -std=c++98
 MAKEFLAGS	+= --no-print-directory
-BONUS_FLAGS = -DBONUS=1
+BONUS_FLAGS = -DBONUS=1 -g
 
 BONUS       ?= 0
 
