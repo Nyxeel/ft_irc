@@ -98,39 +98,30 @@ bool Bot::censorMessage(const std::string &target, std::string &text) {
 
 
 bool Bot::processBotMessage(const IrcMessage &msg, std::string &responseText) {
-	if (msg.command != "PRIVMSG" || msg.params.size() < 2)
+	if (msg.command != "PRIVMSG")
 		return false;
 
-	std::string target = msg.params[0];
-	std::string text = msg.params[1];
-
-	bool isDirectMessage = Parser::ircStringCompare(target, _name);
-	if (!isDirectMessage && (text.empty() || text[0] != '!'))
+	if (responseText[0] != '!')
 		return false;
 
-	if (text.find("!help") != std::string::npos || (isDirectMessage && text.find("help") != std::string::npos)) {
+	if (responseText.find("!help") != std::string::npos) {
 		responseText = _getHelp();
 		return true;
 	}
-	if (text.find("!time") != std::string::npos || (isDirectMessage && text.find("time") != std::string::npos)) {
+	if (responseText.find("!time") != std::string::npos) {
 		responseText = _getTime();
 		return true;
 	}
-	if (text.find("!joke") != std::string::npos || (isDirectMessage && text.find("joke") != std::string::npos)) {
+	if (responseText.find("!joke") != std::string::npos) {
 		responseText = _getJoke();
 		return true;
 	}
-	if (text.find("!roll") != std::string::npos || (isDirectMessage && text.find("roll") != std::string::npos)) {
+	if (responseText.find("!roll") != std::string::npos) {
 		responseText = _rollDice();
 		return true;
 	}
-	if (text.find("!flip") != std::string::npos || (isDirectMessage && text.find("flip") != std::string::npos)) {
+	if (responseText.find("!flip") != std::string::npos) {
 		responseText = _flipCoin();
-		return true;
-	}
-
-	if (isDirectMessage) {
-		responseText = "Unknown command. Type 'help' for a list of commands.";
 		return true;
 	}
 
