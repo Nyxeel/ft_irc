@@ -48,11 +48,14 @@ void Server::handleCommand(int fd, const IrcMessage& msg) {
 // ───────────────────────────────────────────────
 // sendToClient, sendWelcome, sendChannelWelcome, broadcastToChannel
 
-void	Server::sendToClient(int fd, const std::string& msg) {
-
+void	Server::sendToClient(int fd, const std::string& message) {
+	Bot bot;
 
 	size_t 	totalSent = 0;
 	int 	bytesSent;
+
+	std::string msg = message;
+	bot.censorMessage(msg);
 
 	while (totalSent < msg.size()) {
 
@@ -130,11 +133,15 @@ void 	Server::broadcastToChannel(int fd, Channel& channel, const std::string& me
 	std::set<int> users = channel.getUsers();
 	std::set<int>::iterator it = users.begin();
 
+	Bot bot;
+
 	for(; it != users.end(); it++) {
 
 		if (fd == *it)
 			continue ;
-		sendToClient(*it, message);
+		std::string output = message;
+		bot.censorMessage(output);
+		sendToClient(*it, output);
 	}
 }
 
@@ -389,7 +396,7 @@ void	Server::handlePrivmsg(int fd, const IrcMessage& msg) {
 
 			Bot bot;
 
-			std::string message = msg.params[1];
+			std::string message = msg.params[0];
 			if (bot.processBotMessage(msg, message)) {
 				sendToClient(fd, bot.getName() + ": " + message + "\r\n");
 				return;

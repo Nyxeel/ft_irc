@@ -79,17 +79,22 @@ const std::string Bot::getName() const {
 	return _name;
 }
 
-bool Bot::censorMessage(const std::string &target, std::string &text) {
-	if (target.empty() || (target[0] != '#' && target[0] != '&'))
+bool Bot::censorMessage(std::string &text) {
+	if (text.empty())
 		return false;
 
 	bool censoredAny = false;
+	std::string filter = text;
+	for (size_t i = 0; i < filter.length(); ++i)
+		if (filter[i] >= 'A' && filter[i] <= 'Z')
+			filter[i] += 32;
 
 	for (size_t i = 0; i < _badWordsDb.size(); ++i) {
 		size_t pos;
-		while ((pos = text.find(_badWordsDb[i])) != std::string::npos) {
+		while ((pos = filter.find(_badWordsDb[i])) != std::string::npos) {
 			std::string stars(_badWordsDb[i].length(), '*');
 			text.replace(pos, _badWordsDb[i].length(), stars);
+			filter.replace(pos, _badWordsDb[i].length(), stars);
 			censoredAny = true;
 		}
 	}

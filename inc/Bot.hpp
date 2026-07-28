@@ -28,7 +28,7 @@ class Bot {
 
 		const std::string getName() const;
 
-		bool censorMessage(const std::string &target, std::string &text);
+		bool censorMessage(std::string &text);
 		bool processBotMessage(const IrcMessage &msg, std::string &responseText);
 };
 
