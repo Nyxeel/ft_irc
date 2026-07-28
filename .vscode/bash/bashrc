@@ -136,22 +136,6 @@ gitupdate() {
 
 
 ##export PS1='\[\e[0;32m\][ nyxeel\[\e[0m\]@ZenDesk\[\e[0m\] ] \[\e[0;32m\]\W\[\e[0m\] ▸ \$ '
-# System-Shell-Integration neutralisieren
-PROMPT_COMMAND=update_exit_status_icon
-
-
-
-gitupdate() {
-    if [ $# -eq 0 ]; then
-        msg="Update progress"
-    else
-        msg="$*"
-    fi
-
-    git add .
-    git commit -m "$msg" && git push
-}
-
 
 parse_git_branch()
 {
@@ -235,6 +219,8 @@ update_exit_status_icon()
     fi
 }
 
+# System-Shell-Integration neutralisieren
+PROMPT_COMMAND=update_exit_status_icon
 
 # Dein eigenes Prompt setzen
 export PS1='┌─\[\e[1;38;5;89m\] nyxeel\[\e[0m\] $(parse_git_branch)⋗\[\e[0;38;5;69m\] \w\[\e[0m\]\n└─➤ \[\e[0;38;5;1m\]$EXIT_ICON\[\e[1;38;5;179m\]\$\[\e[0m\] '
@@ -250,8 +236,7 @@ export PS2='> '
 # >>> LS_COLORS – USER OVERRIDES <<<
 #########################################
 unset LS_COLORS
-LS_COLORS=''
-LS_COLORS="$LS_COLORS:di=1;38;5;223"
+LS_COLORS='di=1;38;5;223'
 LS_COLORS="$LS_COLORS:ex=1;38;5;160"
 LS_COLORS="$LS_COLORS:ln=1;38;5;93"
 LS_COLORS="$LS_COLORS:or=1;38;5;196;48;5;52"
@@ -268,8 +253,6 @@ LS_COLORS="$LS_COLORS:*.7z=38;5;208"
 LS_COLORS="$LS_COLORS:*.rar=38;5;208"
 export LS_COLORS
 
-alias ls='ls --color=auto'
-
 #########################################
 # <<< END LS_COLORS OVERRIDES <<<
 #########################################
@@ -277,5 +260,5 @@ alias ls='ls --color=auto'
 
 
 #BASH LINE EDITOR
-source -- ~/.local/share/blesh/ble.sh
+[ -f ~/.local/share/blesh/ble.sh ] && source -- ~/.local/share/blesh/ble.sh
 export SYSTEMD_PAGER=

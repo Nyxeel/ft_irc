@@ -8,6 +8,7 @@ BONUS       ?= 0
 
 SRCS        =	main.cpp \
 				Server.cpp \
+				Server.commands.cpp \
 				Channel.cpp \
 				Client.cpp \
 				Parser.cpp
