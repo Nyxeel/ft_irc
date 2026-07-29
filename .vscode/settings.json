@@ -1,7 +1,7 @@
 {
     // === FILES ===
     "files.autoSave": "afterDelay",                    // speichert Dateien automatisch nach kurzer Zeit
-    "files.insertFinalNewline": false,                  // fügt am Ende der Datei automatisch eine Leerzeile hinzu
+    "files.insertFinalNewline": true,                  // fügt am Ende der Datei automatisch eine Leerzeile hinzu
     "files.trimFinalNewlines": false,                  // entfernt keine überzähligen Leerzeilen am Ende
     "files.trimTrailingWhitespace": true,              // entfernt Leerzeichen am Zeilenende
 
@@ -15,9 +15,6 @@
     "editor.rulers": [80],                             // visuelle 80-Zeichen-Grenze
     "editor.smoothScrolling": true,                    // weiches Scrollen
     "editor.wordWrap": "off",                           // automatische Zeilenumbrüche
-	"editor.inlineSuggest.enabled": false,			  // Inline-Vorschläge deaktiviert
-
-
 
     // ==== TAB RULES ====
     "editor.tabSize": 4,                               // Tabweite = 4 Zeichen
@@ -26,7 +23,7 @@
 
     // === SNIPPETS / SUGGEST GLOBAL ===
     // C/C++-Extension soll keine eigenen Snippets mehr anbieten
-    "C_Cpp.suggestSnippets": true,
+    "C_Cpp.suggestSnippets": false,
 
     // Snippets in der Vorschlagsliste ganz nach oben
     "editor.snippetSuggestions": "top",
@@ -81,7 +78,7 @@
 	},
 
     "[cpp]": {
-        "editor.formatOnSave": false                  // C++ automatisch formatieren beim Speichern
+        "editor.formatOnSave": true                    // C++ automatisch formatieren beim Speichern
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -103,7 +100,7 @@
     },
 
     // === GIT / GITHUB ===
-    "git.autofetch": false,                             // holt automatisch Updates
+    "git.autofetch": true,                             // holt automatisch Updates
     "git.confirmSync": false,                          // keine Rückfrage beim Sync
     "github.copilot.enable": {
         // "c++": true                                  // Copilot für C++ deaktiviert (kommentiert)
@@ -173,22 +170,43 @@
         // "workbench.action.terminal.focusNextPane",
         // "workbench.action.terminal.focusPreviousPane"
 	],
-	"terminal.integrated.fontFamily": "monospace",
+	"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.defaultProfile.linux": "bash",
-	"terminal.integrated.suggest.enabled": false,
-	"terminal.integrated.suggest.suggestOnTriggerCharacters": false,
-	"terminal.integrated.shellIntegration.enabled": false,
+	"debug.onTaskErrors": "showErrors",
+	"workbench.secondarySideBar.defaultVisibility": "visible",
+	"extensions.ignoreRecommendations": true,
+	"C_Cpp.intelliSenseEngine": "enable",
+	"chat.viewSessions.orientation": "stacked",
+	"redhat.telemetry.enabled": true,
+	"explorer.confirmPasteNative": false,
+	"diffEditor.ignoreTrimWhitespace": true,
+	"diffEditor.hideUnchangedRegions.enabled": true,
+	"claudeCode.preferredLocation": "panel",
+	"terminal.integrated.stickyScroll.enabled": false,
+	"git.openRepositoryInParentFolders": "never"
 
-
-	// =========================================================
-    // CLANG TIDY tracking
-    // =========================================================
-
-	"C_Cpp.codeAnalysis.clangTidy.enabled": true,
-    "C_Cpp.codeAnalysis.runAutomatically": true,
-    "C_Cpp.codeAnalysis.clangTidy.path": "clang-tidy",
-    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true,
-	"C_Cpp.codeAnalysis.enabled": true,
-	"C_Cpp.default.compilerPath": "/usr/bin/c++",
-
+    /*
+    // Alter Block (deaktiviert, nur Referenz)
+    "workbench.colorTheme": "Default Dark+ High Contrast",
+    "workbench.colorCustomizations": {
+        "editorGroup.focusedBorder": "#FF0033",
+        "tab.activeBorderTop": "#FF0033",
+        "editorGroupHeader.tabsBorder": "#FF0033",
+        "tab.activeBackground": "#330000",
+        "editor.background": "#000000",
+        "editorGroup.border": "#453f3f",
+        "terminal.border": "#C500FF",
+        "panel.border": "#C500FF",
+        "terminal.background": "#000000",
+        "panel.background": "#000000",
+        "sideBar.border": "#0E639C",
+        "sideBarSectionHeader.border": "#0E639C",
+        "focusBorder": "#FF0033",
+        "widget.shadow": "#1013c655"
+    },
+    "terminal.integrated.commandsToSkipShell": [
+        "workbench.view.explorer"
+    ]
+    */
 }

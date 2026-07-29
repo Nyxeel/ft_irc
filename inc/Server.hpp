@@ -34,6 +34,8 @@
 #define CMD_INVITE	"INVITE"
 #define CMD_TOPIC	"TOPIC"
 #define CMD_MODE	"MODE"
+#define CMD_PING	"PING"
+#define CMD_CAP		"CAP"
 
 class Server {
 
