@@ -107,8 +107,8 @@ all:
 		$(MAKE) $(NAME)
 	fi
 
-bonus:
-	$(MAKE) all BONUS=1
+bonus: 
+	$(MAKE) re BONUS=1
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)

@@ -93,7 +93,10 @@ bool Bot::censorMessage(std::string &text) {
 		size_t pos;
 		while ((pos = filter.find(_badWordsDb[i])) != std::string::npos) {
 			std::string stars(_badWordsDb[i].length(), '*');
-			text.replace(pos, _badWordsDb[i].length(), stars);
+			int posNew = pos + _badWordsDb[i].length();
+			if (text[posNew] == ' ' || (text[posNew] == '\r' && text[posNew + 1] == '\n')) {
+				text.replace(pos, _badWordsDb[i].length(), stars);
+			}
 			filter.replace(pos, _badWordsDb[i].length(), stars);
 			censoredAny = true;
 		}
