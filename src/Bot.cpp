@@ -102,9 +102,7 @@ bool Bot::censorMessage(std::string &text) {
 }
 
 
-bool Bot::processBotMessage(const IrcMessage &msg, std::string &responseText) {
-	if (msg.command != "PRIVMSG")
-		return false;
+bool Bot::processBotMessage(std::string &responseText) {
 
 	if (responseText[0] != '!')
 		return false;

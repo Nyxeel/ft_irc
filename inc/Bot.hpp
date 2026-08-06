@@ -12,11 +12,11 @@ class Bot {
 		std::vector <std::string>	_badWordsDb;
 
 		void						_loadDatabase();
-		std::string 			_getHelp() const;
-		std::string 			_getTime() const;
-		std::string 			_getJoke() const;
-		std::string 			_rollDice() const;
-		std::string 			_flipCoin() const;
+		std::string 				_getHelp() const;
+		std::string 				_getTime() const;
+		std::string 				_getJoke() const;
+		std::string 				_rollDice() const;
+		std::string 				_flipCoin() const;
 
 		Bot(const Bot &other);
 		Bot &operator=(const Bot &other);
@@ -29,7 +29,7 @@ class Bot {
 		const std::string getName() const;
 
 		bool censorMessage(std::string &text);
-		bool processBotMessage(const IrcMessage &msg, std::string &responseText);
+		bool processBotMessage(std::string &responseText);
 };
 
 #endif

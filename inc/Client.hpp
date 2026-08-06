@@ -81,7 +81,11 @@ typedef std::map<int, Client> ClientMap;
 // 	TOPIC <channel> [:topic]               /topic [neues topic]                Channel-Topic anzeigen oder setzen
 // 	MODE <target> <modes> [params]         /mode <channel/nick> <modes>        Channel- oder User-Modes setzen/abfragen (z.B. +i, +o, +k)
 
-/home/netrunner/projects/ft_irc/README.md
+
+//goto window [number]
+
+
+
 // 	### DCC Filetransfer – relevante Befehle ###
 //
 // 	/dcc send <nick> <file>          Datei an <nick> senden

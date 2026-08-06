@@ -171,6 +171,7 @@
         // "workbench.action.terminal.focusPreviousPane"
 	],
 	"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+	"terminal.integrated.gpuAcceleration": "off",
 	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.defaultProfile.linux": "bash",
 	"debug.onTaskErrors": "showErrors",

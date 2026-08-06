@@ -11,6 +11,8 @@
 #include <sstream>
 #include <string>
 
+void print(std::string str);
+
 void Server::handleCommand(int fd, const IrcMessage &msg)
 {
 
@@ -446,8 +448,21 @@ void Server::handlePrivmsg(int fd, const IrcMessage &msg)
 			// is client member of the channel ??
 			if (chan.isMember(fd))
 			{
+				bool flag = false;
+				std::string response = msg.params[1];
 
-				const std::string message = (":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " PRIVMSG " + chan.getName() + " :" + msg.params[1] + "\r\n");
+				if (BONUS) {
+
+					Bot bot;
+					flag = bot.processBotMessage(response);
+				}
+
+				const std::string message = (":" + client.getNickname() + "!"
+					+ client.getUsername() + "@" + client.getHostAdresse()
+					+ " PRIVMSG " + chan.getName() + " :"
+					+ response + "\r\n");
+				if (flag)
+					sendToClient(fd, message);
 
 				broadcastToChannel(fd, chan, message);
 			}
@@ -469,9 +484,20 @@ void Server::handlePrivmsg(int fd, const IrcMessage &msg)
 			if (iter->second.getNickname() == targets[i] && iter->second.isAuthenticated())
 			{
 
-				// if (BONUS)
+				std::string response = msg.params[1];
 
-				const std::string message = (":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " PRIVMSG " + iter->second.getNickname() + " :" + msg.params[1] + "\r\n");
+				if (BONUS) {
+
+					Bot bot;
+
+					//print("Bot processing message: " + response);
+					bot.processBotMessage(response);
+				}
+
+				const std::string message = (":" + client.getNickname() + "!"
+					+ client.getUsername() + "@" + client.getHostAdresse()
+					+ " PRIVMSG " + iter->second.getNickname() + " :"
+					+ response + "\r\n");
 
 				sendToClient(iter->first, message);
 				found = true;
