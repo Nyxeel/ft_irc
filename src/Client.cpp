@@ -11,14 +11,12 @@
 
 Client::Client() :
 	_clientSocket(-1), _nickname(""), _username(""),
-	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false)
-{
+	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false) {
 }
 
 Client::Client(int clientSocket) :
 	_clientSocket(clientSocket), _nickname(""), _username(""),
-	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false)
-{
+	_authenticate(false), _passOK(false), _userOK(false), _nickOK(false) {
 }
 
 Client::~Client() {

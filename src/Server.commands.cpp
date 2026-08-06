@@ -738,114 +738,114 @@ void Server::handleMode(int fd, const IrcMessage &msg)
 		switch (modestring[i])
 		{
 
-		case 'i':
-		{
+			case 'i':
+			{
 
-			channel.setInviteOnly(mode == '+');
+				channel.setInviteOnly(mode == '+');
 
-			std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "i\r\n";
+				std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "i\r\n";
 
-			sendToClient(fd, message);
-			broadcastToChannel(fd, channel, message);
-			break;
-		}
-		case 't':
-		{
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break;
+			}
+			case 't':
+			{
 
-			channel.setTopicProtection(mode == '+');
+				channel.setTopicProtection(mode == '+');
 
-			std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "t\r\n";
+				std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "t\r\n";
 
-			sendToClient(fd, message);
-			broadcastToChannel(fd, channel, message);
-			break;
-		}
-		case 'k':
-		{
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break;
+			}
+			case 'k':
+			{
 
-			std::string key = "";
-			if (mode == '+')
+				std::string key = "";
+				if (mode == '+')
+				{
+
+					if (count >= args)
+					{
+						sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "k :Not enough parameters\r\n");
+						break;
+					}
+					key = msg.params[2 + count++];
+				}
+				channel.setKey(key);
+
+				std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "k" + (mode == '+' ? " " + key : "") + "\r\n";
+
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break;
+			}
+			case 'o':
 			{
 
 				if (count >= args)
 				{
-					sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "k :Not enough parameters\r\n");
+					sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "o :Not enough parameters\r\n");
 					break;
 				}
-				key = msg.params[2 + count++];
-			}
-			channel.setKey(key);
+				std::string user = msg.params[2 + count++];
 
-			std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "k" + (mode == '+' ? " " + key : "") + "\r\n";
-
-			sendToClient(fd, message);
-			broadcastToChannel(fd, channel, message);
-			break;
-		}
-		case 'o':
-		{
-
-			if (count >= args)
-			{
-				sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "o :Not enough parameters\r\n");
-				break;
-			}
-			std::string user = msg.params[2 + count++];
-
-			int userFd = getFdByNickname(user);
-			if (!channel.isMember(userFd))
-			{
-
-				sendToClient(fd, ":ircserv " + std::string(ERR_USERNOTINCHANNEL) + " " + client.getNickname() + " " + user + " " + channel.getName() + " :They aren't on that channel\r\n");
-				break;
-			}
-
-			if ((mode == '+' && channel.isOperator(userFd)) || (mode == '-' && !channel.isOperator(userFd)))
-				break; // breaken da keine aenderung stattfindet
-
-			else if (mode == '+' && !channel.isOperator(userFd))
-				channel.setOperator(userFd);
-
-			else if (mode == '-' && channel.isOperator(userFd))
-				channel.removeOperator(userFd);
-
-			std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "o " + _clientMap[userFd].getNickname() + "\r\n";
-
-			sendToClient(fd, message);
-			broadcastToChannel(fd, channel, message);
-			break;
-		}
-
-		case 'l':
-		{
-
-			if (mode == '+')
-			{
-				if (count >= args || !checkDigits(msg.params[2 + count]))
+				int userFd = getFdByNickname(user);
+				if (!channel.isMember(userFd))
 				{
-					sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "l :Not enough parameters\r\n");
+
+					sendToClient(fd, ":ircserv " + std::string(ERR_USERNOTINCHANNEL) + " " + client.getNickname() + " " + user + " " + channel.getName() + " :They aren't on that channel\r\n");
 					break;
 				}
 
-				char *endptr;
-				size_t userLimit = std::strtol(msg.params[2 + count].c_str(), &endptr, 10);
-				channel.setUserLimit(userLimit);
+				if ((mode == '+' && channel.isOperator(userFd)) || (mode == '-' && !channel.isOperator(userFd)))
+					break; // breaken da keine aenderung stattfindet
+
+				else if (mode == '+' && !channel.isOperator(userFd))
+					channel.setOperator(userFd);
+
+				else if (mode == '-' && channel.isOperator(userFd))
+					channel.removeOperator(userFd);
+
+				std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "o " + _clientMap[userFd].getNickname() + "\r\n";
+
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break;
 			}
-			else
-				channel.setUserLimit(0);
 
-			std::ostringstream oss;
-			oss << channel.getUserLimit();
+			case 'l':
+			{
 
-			std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "l " + oss.str() + "\r\n";
+				if (mode == '+')
+				{
+					if (count >= args || !checkDigits(msg.params[2 + count]))
+					{
+						sendToClient(fd, ":ircserv " + std::string(ERR_NEEDMOREPARAMS) + " " + client.getNickname() + " MODE " + mode + "l :Not enough parameters\r\n");
+						break;
+					}
 
-			sendToClient(fd, message);
-			broadcastToChannel(fd, channel, message);
-			break;
-		}
+					char *endptr;
+					size_t userLimit = std::strtol(msg.params[2 + count].c_str(), &endptr, 10);
+					channel.setUserLimit(userLimit);
+				}
+				else
+					channel.setUserLimit(0);
 
-		default:
-			sendToClient(fd, ":ircserv " + std::string(ERR_UNKNOWNMODE) + " " + client.getNickname() + " " + modestring[i] + " :is unknown mode char to me\r\n");
+				std::ostringstream oss;
+				oss << channel.getUserLimit();
+
+				std::string message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostAdresse() + " MODE " + channel.getName() + " " + mode + "l " + oss.str() + "\r\n";
+
+				sendToClient(fd, message);
+				broadcastToChannel(fd, channel, message);
+				break;
+			}
+
+			default:
+				sendToClient(fd, ":ircserv " + std::string(ERR_UNKNOWNMODE) + " " + client.getNickname() + " " + modestring[i] + " :is unknown mode char to me\r\n");
 		}
 	}
 }

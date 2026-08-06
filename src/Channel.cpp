@@ -113,7 +113,7 @@ const std::set<int>&	Channel::getUsers() const {
 }
 
 const std::set<int>&	Channel::getOperators() const {
-
+	
 	return (_operators);
 }
 

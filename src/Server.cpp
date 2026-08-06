@@ -36,7 +36,8 @@ Server::Server(std::string port, std::string password) {
 
 Server::Server(const Server &other)
     : _serverSocket(other._serverSocket), _port(other._port),
-      _password(other._password), _running(other._running) {}
+      _password(other._password), _running(other._running) {
+}
 
 Server &Server::operator=(const Server &other) {
 

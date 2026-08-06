@@ -16,7 +16,7 @@ Bot::Bot(const std::string &name) : _name(name) {
 }
 
 Bot::~Bot() {
-
+	
 }
 
 //private functions
@@ -90,13 +90,15 @@ bool Bot::censorMessage(std::string &text) {
 			filter[i] += 32;
 
 	for (size_t i = 0; i < _badWordsDb.size(); ++i) {
+		
 		size_t pos;
 		while ((pos = filter.find(_badWordsDb[i])) != std::string::npos) {
+			
 			std::string stars(_badWordsDb[i].length(), '*');
 			int posNew = pos + _badWordsDb[i].length();
-			if (text[posNew] == ' ' || (text[posNew] == '\r' && text[posNew + 1] == '\n')) {
+			if (text[posNew] == ' ' || (text[posNew] == '\r' && text[posNew + 1] == '\n'))
 				text.replace(pos, _badWordsDb[i].length(), stars);
-			}
+
 			filter.replace(pos, _badWordsDb[i].length(), stars);
 			censoredAny = true;
 		}
