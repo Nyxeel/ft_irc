@@ -793,6 +793,12 @@ void Server::handleMode(int fd, const IrcMessage &msg)
 				std::string user = msg.params[2 + count++];
 
 				int userFd = getFdByNickname(user);
+				if (userFd == FATAL)
+				{
+
+					sendToClient(fd, ":ircserv " + std::string(ERR_NOSUCHNICK) + " " + client.getNickname() + " " + user + " :No such nick/channel\r\n");
+					break;
+				}
 				if (!channel.isMember(userFd))
 				{
 
@@ -829,6 +835,7 @@ void Server::handleMode(int fd, const IrcMessage &msg)
 
 					char *endptr;
 					size_t userLimit = std::strtol(msg.params[2 + count].c_str(), &endptr, 10);
+					count++;
 					channel.setUserLimit(userLimit);
 				}
 				else
