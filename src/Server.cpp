@@ -77,13 +77,7 @@ void Server::init_signals() {
 
 void printServerStop() {
 
-	struct timespec ts = {0, 300000000L}; // 300ms
-	for (int i = 0; i < 10; i++) {
-	  const char *dots[] = {"   ", ".  ", ".. ", "..."};
-	  std::cout << "\rServer shutting down" << dots[i % 4] << std::flush;
-	  nanosleep(&ts, NULL);
-	}
-	std::cout << "\r                        \r" << std::flush;
+	std::cout << "Server shutting down..." << std::endl;
 }
 
 void Server::stop() {
@@ -131,7 +125,7 @@ void Server::setup() {
 	if (!_createdAt.empty() && _createdAt[_createdAt.size() - 1] == '\n')
 		_createdAt.erase(_createdAt.size() - 1);
 
-	// Socket erstellen
+	// Socket erstellen SOCK_STREAM == TCP 
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket == FATAL)
 	  throw std::runtime_error(std::string("Error socket(): ") +
